@@ -11,7 +11,7 @@ public class ChessBoard {
     private ChessPiece[] pieces;
 
     public ChessBoard() {
-        
+        this.pieces = {};
     }
 
     /**
