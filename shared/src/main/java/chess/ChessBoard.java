@@ -8,10 +8,10 @@ package chess;
  */
 public class ChessBoard {
 
-    private ChessPiece[] pieces;
+    private ChessPiece[][] pieces;
 
     public ChessBoard() {
-        this.pieces = {};
+        this.pieces = new ChessPiece[8][8];
     }
 
     /**
