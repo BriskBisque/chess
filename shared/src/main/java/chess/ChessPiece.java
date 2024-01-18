@@ -48,6 +48,76 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        if (this.type == PieceType.KING) {
+            return kingMove(board, myPosition);
+        } else if (this.type == PieceType.QUEEN){
+
+        } else if (this.type == PieceType.BISHOP){
+
+        } else if (this.type == PieceType.KNIGHT){
+
+        } else if (this.type == PieceType.ROOK){
+
+        } else if (this.type == PieceType.PAWN){
+
+        }
+    }
+
+    public Collection<ChessMove> kingMove(ChessBoard board, ChessPosition myPosition){
+        Collection<ChessMove> possibleMoves = new Collection<ChessMove>;
+        int[][] newPositionsDisplacement = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+        for(int[] displace: newPositionsDisplacement){
+            int newRow = myPosition.row + displace[0];
+            int newCol = myPosition.col + displace[1];
+            if ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if (board.getPiece(newPosition) != null) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+        }
+        return possibleMoves;
+    }
+
+    public Collection<ChessMove> queenMove(ChessBoard board, ChessPosition myPosition){
+        Collection<ChessMove> possibleMoves = new Collection<ChessMove>;
+        int newRow = myPosition.row;
+        int newCol = myPosition.col;
+        /* moving down and to the right */
+        while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (board.getPiece(newPosition) != null) {
+                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+            } else {
+                break;
+            }
+            newRow++;
+            newCol++;
+        }
+        newRow = myPosition.row;
+        newCol = myPosition.col;
+        /* moving down */
+        while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (board.getPiece(newPosition) != null) {
+                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+            } else {
+                break;
+            }
+            newRow++;
+        }
+        newRow = myPosition.row;
+        newCol = myPosition.col;
+        /* moving down and to the left */
+        while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (board.getPiece(newPosition) != null) {
+                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+            } else {
+                break;
+            }
+            newRow++;
+            newCol--;
+        }
     }
 }
