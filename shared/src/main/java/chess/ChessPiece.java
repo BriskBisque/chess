@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * Represents a single chess piece
@@ -51,20 +52,21 @@ public class ChessPiece {
         if (this.type == PieceType.KING) {
             return kingMove(board, myPosition);
         } else if (this.type == PieceType.QUEEN){
-
+            return queenMove(board, myPosition);
         } else if (this.type == PieceType.BISHOP){
-
+            throw new RuntimeException("Not implemented");
         } else if (this.type == PieceType.KNIGHT){
-
+            throw new RuntimeException("Not implemented");
         } else if (this.type == PieceType.ROOK){
-
+            throw new RuntimeException("Not implemented");
         } else if (this.type == PieceType.PAWN){
-
+            throw new RuntimeException("Not implemented");
         }
+        throw new RuntimeException("Not implemented");
     }
 
     public Collection<ChessMove> kingMove(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> possibleMoves = new Collection<ChessMove>;
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
         int[][] newPositionsDisplacement = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
         for(int[] displace: newPositionsDisplacement){
             int newRow = myPosition.row + displace[0];
@@ -80,44 +82,44 @@ public class ChessPiece {
     }
 
     public Collection<ChessMove> queenMove(ChessBoard board, ChessPosition myPosition){
-        Collection<ChessMove> possibleMoves = new Collection<ChessMove>;
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
         int newRow = myPosition.row;
         int newCol = myPosition.col;
-        /* moving down and to the right */
+        // down and to the right
+        possibleMoves.addAll(checkDirection(1, 1, myPosition, board));
+        // down
+        possibleMoves.addAll(checkDirection(1, 0, myPosition, board));
+        // down to the left
+        possibleMoves.addAll(checkDirection(1, -1, myPosition, board));
+        // left
+        possibleMoves.addAll(checkDirection(0, -1, myPosition, board));
+        // left and up
+        possibleMoves.addAll(checkDirection(-1, -1, myPosition, board));
+        // up
+        possibleMoves.addAll(checkDirection(-1, 0, myPosition, board));
+        // up and right
+        possibleMoves.addAll(checkDirection(-1, 1, myPosition, board));
+        // right
+        possibleMoves.addAll(checkDirection(0, 1, myPosition, board));
+        return possibleMoves;
+    }
+
+    public Collection<ChessMove> checkDirection(int changeRow, int changeCol, ChessPosition myPosition, ChessBoard board){
+        Collection<ChessMove> tempMoves = new ArrayList<>();
+        int newRow = myPosition.row;
+        int newCol = myPosition.col;
         while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
             ChessPosition newPosition = new ChessPosition(newRow, newCol);
             if (board.getPiece(newPosition) != null) {
-                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                tempMoves.add(new ChessMove(myPosition, newPosition, null));
             } else {
+                tempMoves.add(new ChessMove(myPosition, newPosition, null));
                 break;
             }
-            newRow++;
-            newCol++;
+            newRow = newRow + changeRow;
+            newCol = newCol + changeCol;
         }
-        newRow = myPosition.row;
-        newCol = myPosition.col;
-        /* moving down */
-        while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
-            ChessPosition newPosition = new ChessPosition(newRow, newCol);
-            if (board.getPiece(newPosition) != null) {
-                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
-            } else {
-                break;
-            }
-            newRow++;
-        }
-        newRow = myPosition.row;
-        newCol = myPosition.col;
-        /* moving down and to the left */
-        while ((newRow < 8 && newRow >= 0) && (newCol < 8 && newCol >= 0)) {
-            ChessPosition newPosition = new ChessPosition(newRow, newCol);
-            if (board.getPiece(newPosition) != null) {
-                possibleMoves.add(new ChessMove(myPosition, newPosition, null));
-            } else {
-                break;
-            }
-            newRow++;
-            newCol--;
-        }
+        return tempMoves;
     }
 }
+
