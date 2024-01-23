@@ -8,6 +8,7 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
     public int[][] newPositionsDisplacement;
     public int startRow;
     public int[] startDisplacement;
+    public ChessPiece.PieceType[] promoTypes = new PieceType[] {PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
 
     public PawnMovesCalculator (ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         super(pieceColor, type);
@@ -28,15 +29,14 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
         for(int[] displace: this.newPositionsDisplacement){
             int newRow = myPosition.getRow() + displace[0];
             int newCol = myPosition.getColumn() + displace[1];
-            if ((newRow < 9 && newRow > 0) && (newCol < 9 && newCol > 0)) {
-                ChessPosition newPosition = new ChessPosition(newRow, newCol);
-                // didn't combine if statements for readability
-                if ((displace[1] != 0) && (board.getPiece(newPosition) != null) && (board.getPiece(newPosition).color != this.color)){
-                    possibleMoves.addAll(promoMoveAdd(board, myPosition, newPosition));
-                }
-                if ((displace[1] == 0) && (board.getPiece(newPosition) == null)){
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if ((displace[1] != 0) && (board.getPiece(newPosition) != null) && (board.getPiece(newPosition).color != this.color)) {
+                possibleMoves.addAll(this.addPromo(board, myPosition, newPosition));
+            }
+            if ((displace[1] == 0) && (board.getPiece(newPosition) == null)) {
+                if (checkBounds(newRow, newCol, board)){
                     checkFrontMove = true;
-                    possibleMoves.addAll(promoMoveAdd(board, myPosition, newPosition));
+                    possibleMoves.addAll(this.addPromo(board, myPosition, newPosition));
                 }
             }
         }
@@ -53,20 +53,24 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
         return possibleMoves;
     }
 
-    public Collection<ChessMove> promoMoveAdd(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition){
+    public Collection<ChessMove> addPromo(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition){
         Collection<ChessMove> tempMoves = new ArrayList<>();
-        ChessPiece.PieceType[] promoTypes = new PieceType[] {PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
-        if (this.color == ChessGame.TeamColor.BLACK && newPosition.getRow() == 1) {
-            System.out.println("check");
-            for(ChessPiece.PieceType promoType: promoTypes){
-                tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
+        if ((newPosition.getRow() < 9 && newPosition.getRow() > 0) && (newPosition.getColumn() < 9 && newPosition.getColumn() > 0)) {
+            if ((this.color == ChessGame.TeamColor.BLACK) && (newPosition.getRow() == 1)) {
+                for (PieceType promoType : this.promoTypes) {
+                    if ((promoType != PieceType.PAWN) && (promoType != PieceType.KING)) {
+                        tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
+                    }
+                }
+            } else if ((this.color == ChessGame.TeamColor.WHITE) && (newPosition.getRow() == 8)){
+                for (PieceType promoType : this.promoTypes) {
+                    if ((promoType != PieceType.PAWN) && (promoType != PieceType.KING)) {
+                        tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
+                    }
+                }
+            } else {
+                tempMoves.add(new ChessMove(myPosition, newPosition, null));
             }
-        } else if (this.color == ChessGame.TeamColor.WHITE && newPosition.getRow() == 8){
-            for(ChessPiece.PieceType promoType: promoTypes){
-                tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
-            }
-        } else {
-            tempMoves.add(new ChessMove(myPosition, newPosition, null));
         }
         return tempMoves;
     }
