@@ -13,6 +13,8 @@ public class ChessGame {
 
     public TeamColor teamTurn;
     public ChessBoard board;
+    public Collection<ChessPiece> blackPieces;
+    public Collection<ChessPiece> whitePieces;
 
     public ChessGame() {
         this.board = new ChessBoard();
@@ -66,9 +68,18 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPosition start = move.getStartPosition();
-        ChessPiece piece = this.board.getPiece(start);
-        Collection<ChessMove> possibleMoves = piece.pieceMoves(this.board, start);
+        ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
+        ChessPiece otherPiece = this.board.getPiece(move.getStartPosition());
+        this.board.addPiece(move.getEndPosition(), movedPiece);
+        this.board.addPiece(move.getStartPosition(), null);
+        if (otherPiece != null){
+            if (otherPiece.getTeamColor() == TeamColor.BLACK){
+                this.blackPieces.remove(otherPiece);
+            } else {
+                this.whitePieces.remove(otherPiece);
+            }
+        }
+
     }
 
     /**
@@ -78,7 +89,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (teamColor == TeamColor.BLACK) {
+            ChessPiece thisKing = this.blackPieces.
+            return this.isInCheckHelper(this.whitePieces);
+        } else {
+            return this.isInCheckHelper(this.blackPieces);
+        }
+    }
+
+    public boolean isInCheckHelper(Collection<ChessPiece> otherPieces){
+        for (ChessPiece piece : otherPieces){
+
+        }
+    }
+
+    public ChessPiece getKing(Collection<ChessPiece> teamPieces){
+        for (ChessPiece piece: teamPieces){
+            if (piece.)
+        }
     }
 
     /**

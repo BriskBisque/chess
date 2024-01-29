@@ -3,10 +3,14 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class PieceMovesCalculator extends ChessPiece{
+public class PieceMovesCalculator {
 
-    public PieceMovesCalculator (ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        super(pieceColor, type);
+    public ChessGame.TeamColor color;
+    public ChessPiece.PieceType type;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.color = pieceColor;
+        this.type = type;
     }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
