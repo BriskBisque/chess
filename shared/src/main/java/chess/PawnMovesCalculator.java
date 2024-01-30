@@ -8,7 +8,7 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
     public int[][] newPositionsDisplacement;
     public int startRow;
     public int[] startDisplacement;
-    public ChessPiece.PieceType[] promoTypes = new PieceType[] {PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+    public ChessPiece.PieceType[] promoTypes = new ChessPiece.PieceType[] {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK};
 
     public PawnMovesCalculator (ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         super(pieceColor, type);
@@ -57,14 +57,14 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
         Collection<ChessMove> tempMoves = new ArrayList<>();
         if ((newPosition.getRow() < 9 && newPosition.getRow() > 0) && (newPosition.getColumn() < 9 && newPosition.getColumn() > 0)) {
             if ((this.color == ChessGame.TeamColor.BLACK) && (newPosition.getRow() == 1)) {
-                for (PieceType promoType : this.promoTypes) {
-                    if ((promoType != PieceType.PAWN) && (promoType != PieceType.KING)) {
+                for (ChessPiece.PieceType promoType : this.promoTypes) {
+                    if ((promoType != ChessPiece.PieceType.PAWN) && (promoType != ChessPiece.PieceType.KING)) {
                         tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
                     }
                 }
             } else if ((this.color == ChessGame.TeamColor.WHITE) && (newPosition.getRow() == 8)){
-                for (PieceType promoType : this.promoTypes) {
-                    if ((promoType != PieceType.PAWN) && (promoType != PieceType.KING)) {
+                for (ChessPiece.PieceType promoType : this.promoTypes) {
+                    if ((promoType != ChessPiece.PieceType.PAWN) && (promoType != ChessPiece.PieceType.KING)) {
                         tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
                     }
                 }

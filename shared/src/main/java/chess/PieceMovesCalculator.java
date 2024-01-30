@@ -8,28 +8,28 @@ public class PieceMovesCalculator {
     public ChessGame.TeamColor color;
     public ChessPiece.PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public PieceMovesCalculator(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
         this.type = type;
     }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (this.type == PieceType.KING) {
+        if (this.type == ChessPiece.PieceType.KING) {
             KingMovesCalculator kingMoveCalc = new KingMovesCalculator(this.color, this.type);
             return kingMoveCalc.pieceMoves(board, myPosition);
-        } else if (this.type == PieceType.QUEEN){
+        } else if (this.type == ChessPiece.PieceType.QUEEN){
             QueenMovesCalculator queenMoveCalc = new QueenMovesCalculator(this.color, this.type);
             return queenMoveCalc.pieceMoves(board, myPosition);
-        } else if (this.type == PieceType.BISHOP){
+        } else if (this.type == ChessPiece.PieceType.BISHOP){
             BishopMovesCalculator bishopMovesCalc = new BishopMovesCalculator(this.color, this.type);
             return bishopMovesCalc.pieceMoves(board, myPosition);
-        } else if (this.type == PieceType.KNIGHT){
+        } else if (this.type == ChessPiece.PieceType.KNIGHT){
             KnightMovesCalculator knightMovesCalc = new KnightMovesCalculator(this.color, this.type);
             return knightMovesCalc.pieceMoves(board, myPosition);
-        } else if (this.type == PieceType.ROOK){
+        } else if (this.type == ChessPiece.PieceType.ROOK){
             RookMovesCalculator rookMovesCalc = new RookMovesCalculator(this.color, this.type);
             return rookMovesCalc.pieceMoves(board, myPosition);
-        } else if (this.type == PieceType.PAWN){
+        } else if (this.type == ChessPiece.PieceType.PAWN){
             PawnMovesCalculator pawnMovesCalc = new PawnMovesCalculator(this.color, this.type);
             return pawnMovesCalc.pieceMoves(board, myPosition);
         }
