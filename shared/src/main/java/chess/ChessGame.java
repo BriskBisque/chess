@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -13,8 +14,10 @@ public class ChessGame {
 
     public TeamColor teamTurn;
     public ChessBoard board;
+    public ChessBoard clonedBoard;
     public Collection<ChessPiece> blackPieces;
     public Collection<ChessPiece> whitePieces;
+    public ChessMove lastMove;
 
     public ChessGame() {
         this.board = new ChessBoard();
@@ -55,14 +58,49 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = this.board.getPiece(startPosition);
         if (piece != null) {
-            if (piece.type == ChessPiece.PieceType.KING){
-                return piece.pieceMoves(this.board, startPosition);
-            } else {
-                return piece.pieceMoves(this.board, startPosition);
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, startPosition);
+            Collection<ChessMove> validPieceMoves = new ArrayList<>();
+            this.clonedBoard = this.board;
+            for (ChessMove move: pieceMoves){
+                this.clonedMakeMove(move);
+                if (!this.clonedBoardInCheck(this.teamTurn)){
+                    validPieceMoves.add(move);
+                }
+                this.clonedBoard = this.board;
             }
+            return validPieceMoves;
         } else {
             return null;
         }
+    }
+
+    public boolean clonedBoardInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = kingMove.endPos;
+        ChessPiece[][] pieces = this.clonedBoard.pieces;
+        for (int i = 0; i < pieces.length; i++){
+            for (int j = 0; j < pieces[i].length; j++){
+                if (pieces[i][j] != null && pieces[i][j].color != teamColor){
+                    ChessPosition piecePosition = new ChessPosition(i, j);
+                    Collection<ChessMove> pieceMoves = pieces[i][j].pieceMoves(this.clonedBoard, piecePosition);
+                    for (ChessMove otherMove: pieceMoves){
+                        if (otherMove.endPos == kingPosition) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public void clonedMakeMove(ChessMove move) throws InvalidMoveException {
+        if (!validMoves(move.startPos).contains(move)){
+            throw new InvalidMoveException();
+        }
+        ChessPiece movedPiece = this.clonedBoard.getPiece(move.getStartPosition());
+        ChessPiece otherPiece = this.clonedBoard.getPiece(move.getEndPosition());
+        this.clonedBoard.addPiece(move.getEndPosition(), movedPiece);
+        this.clonedBoard.addPiece(move.getStartPosition(), null);
     }
 
     /**
@@ -72,17 +110,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (!validMoves(move.startPos).contains(move)){
+            throw new InvalidMoveException();
+        }
         ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
         ChessPiece otherPiece = this.board.getPiece(move.getEndPosition());
         this.board.addPiece(move.getEndPosition(), movedPiece);
         this.board.addPiece(move.getStartPosition(), null);
-        if (otherPiece != null){
-            if (otherPiece.getTeamColor() == TeamColor.BLACK){
-                this.blackPieces.remove(otherPiece);
-            } else {
-                this.whitePieces.remove(otherPiece);
-            }
-        }
+        this.lastMove = move;
     }
 
     /**
@@ -135,11 +170,6 @@ public class ChessGame {
         } else {
             return false;
         }
-    }
-
-
-    public boolean checkMove(TeamColor teamColor, ChessPosition startPosition, ChessPosition endPosition) {
-        return false;
     }
 
     /**
