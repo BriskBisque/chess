@@ -74,4 +74,6 @@ public class ChessBoard {
                 "pieces=" + Arrays.deepToString(pieces) +
                 '}';
     }
+
+
 }
