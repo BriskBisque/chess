@@ -199,7 +199,7 @@ public class ChessGame {
         ChessPiece[][] pieces = this.board.pieces;
         for (int i = 0; i < pieces.length; i++){
             for (int j = 0; j < pieces[i].length; j++){
-                if (pieces[i][j] != null && this.validMoves(new ChessPosition(i+1, j+1)) == null){
+                if (pieces[i][j] != null && this.validMoves(new ChessPosition(i+1, j+1)) != null){
                     return true;
                 }
             }
@@ -215,12 +215,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition kingPosition = this.getKingPosition(teamColor);
-        if (this.isInCheckmate(teamColor)) {
+        if (this.checkForAnyMove(teamColor)) {
             if (teamColor == TeamColor.BLACK) {
-                return this.isInCheckmate(TeamColor.WHITE);
+                return !this.checkForAnyMove(TeamColor.WHITE);
             } else {
-                return this.isInCheckmate(TeamColor.BLACK);
+                return !this.checkForAnyMove(TeamColor.BLACK);
             }
         } else {
             return false;
