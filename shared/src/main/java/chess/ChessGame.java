@@ -227,7 +227,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (!this.isInCheckmate(teamColor)) {
+        if (!this.isInCheck(teamColor) && teamColor == this.teamTurn) {
             return this.checkForAnyMove(teamColor);
         } else {
             return false;
