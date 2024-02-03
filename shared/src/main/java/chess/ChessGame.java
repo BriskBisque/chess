@@ -123,10 +123,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (this.checkMoveBounds(move) || this.board.getPiece(move.getStartPosition()) == null || !this.moveIsValid(move, this.validMoves(move.startPos))){
+        ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
+        if (this.checkMoveBounds(move) || movedPiece == null || movedPiece.color != this.teamTurn || !this.moveIsValid(move, this.validMoves(move.startPos))){
             throw new InvalidMoveException();
         }
-        ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
         this.takenPiece = this.board.getPiece(move.getEndPosition());
         if (movedPiece.type == ChessPiece.PieceType.PAWN) {
             if (move.promoPiece != null){
