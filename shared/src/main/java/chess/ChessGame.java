@@ -60,13 +60,12 @@ public class ChessGame {
         if (piece != null) {
             Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, startPosition);
             Collection<ChessMove> validPieceMoves = new ArrayList<>();
-            this.setClonedBoard();
             for (ChessMove move: pieceMoves){
-                this.clonedMakeMove(move);
-                if (!this.clonedBoardInCheck(piece.getTeamColor())){
+                this.testMakeMove(move);
+                if (!this.isInCheck(piece.getTeamColor())){
                     validPieceMoves.add(move);
                 }
-                this.clonedUndoMove();
+                this.undoMove();
             }
             return validPieceMoves;
         } else {
@@ -74,46 +73,18 @@ public class ChessGame {
         }
     }
 
-    public void setClonedBoard(){
-        for (int i = 0; i < this.board.pieces.length; i++){
-            for (int j = 0; j < this.board.pieces[i].length; j++){
-                ChessPosition position = new ChessPosition(i+1, j+1);
-                this.clonedBoard.addPiece(position, this.board.getPiece(position));
-            }
-        }
-    }
-
-    public boolean clonedBoardInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = this.getKingPosition(teamColor);
-        ChessPiece[][] pieces = this.clonedBoard.pieces;
-        for (int i = 0; i < pieces.length; i++){
-            for (int j = 0; j < pieces[i].length; j++){
-                if (pieces[i][j] != null && pieces[i][j].color != teamColor){
-                    ChessPosition piecePosition = new ChessPosition(i+1, j+1);
-                    Collection<ChessMove> pieceMoves = pieces[i][j].pieceMoves(this.clonedBoard, piecePosition);
-                    for (ChessMove move: pieceMoves){
-                        if (move.endPos.equals(kingPosition)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public void clonedMakeMove(ChessMove move){
-        ChessPiece movedPiece = this.clonedBoard.getPiece(move.getStartPosition());
-        this.takenPiece = this.clonedBoard.getPiece(move.getEndPosition());
-        this.clonedBoard.addPiece(move.getEndPosition(), movedPiece);
-        this.clonedBoard.addPiece(move.getStartPosition(), null);
+    public void testMakeMove(ChessMove move){
+        ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
+        this.takenPiece = this.board.getPiece(move.getEndPosition());
+        this.board.addPiece(move.getEndPosition(), movedPiece);
+        this.board.addPiece(move.getStartPosition(), null);
         this.lastMove = move;
     }
 
-    public void clonedUndoMove(){
-        ChessPiece movedPiece = this.clonedBoard.getPiece(this.lastMove.getEndPosition());
-        this.clonedBoard.addPiece(this.lastMove.getEndPosition(), this.takenPiece);
-        this.clonedBoard.addPiece(this.lastMove.getStartPosition(), movedPiece);
+    public void undoMove(){
+        ChessPiece movedPiece = this.board.getPiece(this.lastMove.getEndPosition());
+        this.board.addPiece(this.lastMove.getEndPosition(), this.takenPiece);
+        this.board.addPiece(this.lastMove.getStartPosition(), movedPiece);
     }
 
     /**
@@ -123,7 +94,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (!validMoves(move.startPos).contains(move)){
+        if (this.board.getPiece(move.getStartPosition()) == null && this.checkMoveBounds(move) && this.moveIsValid(move, validMoves(move.startPos))){
             throw new InvalidMoveException();
         }
         ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
@@ -141,6 +112,19 @@ public class ChessGame {
         } else {
             this.teamTurn = TeamColor.BLACK;
         }
+    }
+
+    public boolean checkMoveBounds(ChessMove move){
+        return move.endPos.getRow() > 9 && move.endPos.getRow() <= 0 && move.endPos.getColumn() > 9 && move.endPos.getColumn() <= 0;
+    }
+
+    public boolean moveIsValid(ChessMove move, Collection<ChessMove> validMoves){
+        for (ChessMove validMove: validMoves){
+            if (validMove.equals(move)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -187,7 +171,6 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingPosition = this.getKingPosition(teamColor);
         if (this.isInCheck(teamColor)) {
             return this.checkForAnyMove(teamColor);
         } else {
@@ -215,12 +198,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (this.checkForAnyMove(teamColor)) {
-            if (teamColor == TeamColor.BLACK) {
-                return !this.checkForAnyMove(TeamColor.WHITE);
-            } else {
-                return !this.checkForAnyMove(TeamColor.BLACK);
-            }
+        if (!this.isInCheckmate(teamColor)) {
+            return this.checkForAnyMove(teamColor);
         } else {
             return false;
         }
