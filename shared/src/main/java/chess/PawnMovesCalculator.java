@@ -29,14 +29,16 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
         for(int[] displace: this.newPositionsDisplacement){
             int newRow = myPosition.getRow() + displace[0];
             int newCol = myPosition.getColumn() + displace[1];
-            ChessPosition newPosition = new ChessPosition(newRow, newCol);
-            if ((displace[1] != 0) && (board.getPiece(newPosition) != null) && (board.getPiece(newPosition).color != this.color)) {
-                possibleMoves.addAll(this.addPromo(board, myPosition, newPosition));
-            }
-            if ((displace[1] == 0) && (board.getPiece(newPosition) == null)) {
-                if (checkBounds(newRow, newCol, board)){
-                    checkFrontMove = true;
+            if (this.checkBounds(newRow, newCol, board)) {
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                if ((displace[1] != 0) && (board.getPiece(newPosition) != null) && (board.getPiece(newPosition).color != this.color)) {
                     possibleMoves.addAll(this.addPromo(board, myPosition, newPosition));
+                }
+                if ((displace[1] == 0) && (board.getPiece(newPosition) == null)) {
+                    if (checkBounds(newRow, newCol, board)) {
+                        checkFrontMove = true;
+                        possibleMoves.addAll(this.addPromo(board, myPosition, newPosition));
+                    }
                 }
             }
         }
