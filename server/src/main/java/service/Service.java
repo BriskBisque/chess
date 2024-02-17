@@ -3,6 +3,8 @@ package service;
 import dataAccess.MemoryUserDAO;
 import dataAccess.UserDAO;
 
+import java.util.UUID;
+
 public class Service {
     static UserDAO dao;
 
@@ -10,14 +12,23 @@ public class Service {
         dao = new MemoryUserDAO();
     }
 
-    public String getUser(String username){
+    public String getUser(String username, String password){
         String databaseUser = dao.select(username);
         if (databaseUser == null){
-            this.
+            this.createUser(username, password);
+            dao.insert();
+            return this.createAuth(username);
+        } else {
+            return
         }
     }
 
-    public void createUser(){
+    public void createUser(String username, String password){
+        String authToken = UUID.randomUUID().toString();
+        dao.insert()
+    }
+
+    public String createAuth(String username){
 
     }
 }

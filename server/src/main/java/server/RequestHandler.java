@@ -18,8 +18,13 @@ public class RequestHandler extends Handler {
         String password = req.queryParams("password");
         String email = req.queryParams("email");
 
-        String
+        RegisterService service = new RegisterService();
+        RegisterResponse result = service.register(username);
 
-        return "Hello, " + username + "!";
+        return gson.toJson(result);
     }
+}
+
+class RegisterResponse extends Response {
+    String authToken;
 }

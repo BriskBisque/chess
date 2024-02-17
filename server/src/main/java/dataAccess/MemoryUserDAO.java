@@ -1,12 +1,19 @@
 package dataAccess;
 
+import model.UserData;
+
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class MemoryUserDAO {
 
-    private Collection<String> data = new ArrayList<>();
+    private Collection<String> data;
 
     public MemoryUserDAO(){
+        data = new ArrayList<>();
+    }
+
+    void insertUser(UserData u) throws DataAccessException{
 
     }
 
@@ -17,5 +24,9 @@ public class MemoryUserDAO {
             }
         }
         return null;
+    }
+
+    public void insert(String input){
+
     }
 }
