@@ -10,6 +10,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.post("/register", (req, res) -> (new RequestHandler()).handleRequest(req, res));
 
         Spark.awaitInitialization();
         return Spark.port();
