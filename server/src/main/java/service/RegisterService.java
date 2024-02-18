@@ -1,9 +1,10 @@
 package service;
 
-import dataAccess.MemoryUserDAO;
-import dataAccess.UserDAO;
+import dataAccess.DataAccessException;
+import model.UserData;
+import server.RegisterResponse;
 
-public class RegisterService {
+public class RegisterService extends UserService {
 
     public RegisterService(){
 

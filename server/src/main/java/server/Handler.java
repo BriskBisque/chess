@@ -6,20 +6,14 @@ import com.google.gson.Gson;
 public class Handler {
     static Gson gson;
 
-    public Handler(){
+    public Handler() {
         gson = new Gson();
     }
 
-    public String handleRequest(Request req, Response res){
+    public String handleRequest(Request req, Response res) {
         String authToken = req.queryParams("authToken");
-
 
 
         return authToken;
     }
-}
-
-class Response{
-    boolean success;
-    String message;
 }

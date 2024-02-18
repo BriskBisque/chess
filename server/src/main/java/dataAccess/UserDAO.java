@@ -1,8 +1,13 @@
 package dataAccess;
 
-public class UserDAO extends MemoryUserDAO{
+import model.UserData;
 
-    public UserDAO(){
+import java.util.ArrayList;
+import java.util.Collection;
 
-    }
+public interface UserDAO{
+
+    public void insertUser(UserData u) throws DataAccessException;
+
+    public UserData getUser(UserData u) throws DataAccessException;
 }

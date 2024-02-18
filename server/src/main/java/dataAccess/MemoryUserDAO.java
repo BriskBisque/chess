@@ -1,32 +1,30 @@
 package dataAccess;
 
+import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MemoryUserDAO {
+public class MemoryUserDAO implements UserDAO{
 
-    private Collection<String> data;
+    Collection<UserData> users;
 
     public MemoryUserDAO(){
-        data = new ArrayList<>();
+        users = new ArrayList<>();
     }
 
-    void insertUser(UserData u) throws DataAccessException{
-
+    public void insertUser(UserData u) throws DataAccessException{
+        this.users.add(u);
     }
 
-    public String select(String input){
-        for (String item: data){
-            if (item.equals(input)){
-                return item;
+    public UserData getUser(UserData u) throws DataAccessException{
+        for (UserData user: this.users){
+            if (user.equals(u)){
+                return user;
             }
         }
         return null;
-    }
-
-    public void insert(String input){
-
     }
 }
