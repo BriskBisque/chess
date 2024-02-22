@@ -1,28 +1,74 @@
 package server;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
 import model.UserData;
 import service.UserService;
 import spark.Request;
 import spark.Response;
 
-public class RequestHandler extends Handler {
+public class RequestHandler {
 
-    public RequestHandler(){
+    static Gson gson;
+    static UserService service;
 
+    public RequestHandler() {
+        gson = new Gson();
+        service = new UserService();
     }
 
-    public String handleRequest(Request req, Response res) throws DataAccessException {
-        UserData userReq = (UserData)gson.fromJson(req.body(), UserData.class);
+    public String handleRegister(Request req, Response res) throws DataAccessException {
+        boolean descriptionCheck = false;
+        UserData userReq;
+        try {
+            userReq = (UserData) gson.fromJson(req.body(), UserData.class);
+        } catch(JsonSyntaxException e) {
+            descriptionCheck = true;
+            userReq = null;
+        }
 
-        UserService service = new UserService();
-        String authToken = service.register(userReq);
+        if (descriptionCheck){
+            FailureResponse response_500 = new FailureResponse(false, "Error: description");
+            return gson.toJson(response_500);
+        }
+
+        boolean badRequestCheck = false;
+        String authToken = null;
+
+        try {
+            UserService service = new UserService();
+            authToken = service.register(userReq);
+        } catch (DataAccessException e){
+            badRequestCheck = true;
+        }
+
+        if(badRequestCheck){
+            FailureResponse response_400 = new FailureResponse(false, "Error: bad request");
+            return gson.toJson(response_400);
+        }
+
         if (authToken == null){
-            FailureResponse response_403 = new FailureResponse(403, "Error: already taken");
+            FailureResponse response_403 = new FailureResponse(false, "Error: already taken");
             return gson.toJson(response_403);
         } else {
-            UserResponse response_200 = new UserResponse(200, userReq.getUsername(), authToken);
+            UserResponse response_200 = new UserResponse(true, userReq.getUsername(), authToken);
             return gson.toJson(response_200);
+        }
+    }
+
+    public String handleClear(Request req, Response res){
+        boolean descriptionCheck = false;
+        UserData userReq = null;
+        try {
+            userReq = (UserData) gson.fromJson(req.body(), UserData.class);
+        } catch(JsonSyntaxException e) {
+            descriptionCheck = true;
+        }
+
+        if (descriptionCheck){
+            FailureResponse response_500 = new FailureResponse("Error: description");
+            return gson.toJson(response_500);
         }
     }
 }
