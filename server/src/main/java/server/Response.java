@@ -4,28 +4,18 @@ import java.util.Objects;
 
 public class Response {
 
-    boolean success;
-    String message;
+    int success;
 
-    public Response(boolean success, String message) {
+    public Response(int success) {
         this.success = success;
-        this.message = message;
     }
 
-    public boolean isSuccess() {
+    public int getSuccess() {
         return success;
     }
 
-    public void setSuccess(boolean success) {
+    public void setSuccess(int success) {
         this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     @Override
@@ -33,11 +23,11 @@ public class Response {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Response response = (Response) o;
-        return isSuccess() == response.isSuccess() && Objects.equals(getMessage(), response.getMessage());
+        return getSuccess() == response.getSuccess();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isSuccess(), getMessage());
+        return Objects.hash(getSuccess());
     }
 }

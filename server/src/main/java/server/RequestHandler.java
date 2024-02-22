@@ -2,7 +2,6 @@ package server;
 
 import dataAccess.DataAccessException;
 import model.UserData;
-import server.Handler;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -17,9 +16,14 @@ public class RequestHandler extends Handler {
         UserData userReq = (UserData)gson.fromJson(req.body(), UserData.class);
 
         UserService service = new UserService();
-        RegisterResponse result = service.register(userReq);
-
-        return gson.toJson(result);
+        String authToken = service.register(userReq);
+        if (authToken == null){
+            FailureResponse response_403 = new FailureResponse(403, "Error: already taken");
+            return gson.toJson(response_403);
+        } else {
+            UserResponse response_200 = new UserResponse(200, userReq.getUsername(), authToken);
+            return gson.toJson(response_200);
+        }
     }
 }
 
