@@ -29,7 +29,7 @@ public class RequestHandler {
         }
 
         if (descriptionCheck){
-            FailureResponse response_500 = new FailureResponse(false, "Error: description");
+            FailureResponse response_500 = new FailureResponse("Error: description");
             return gson.toJson(response_500);
         }
 
@@ -44,32 +44,23 @@ public class RequestHandler {
         }
 
         if(badRequestCheck){
-            FailureResponse response_400 = new FailureResponse(false, "Error: bad request");
+            FailureResponse response_400 = new FailureResponse("Error: bad request");
             return gson.toJson(response_400);
         }
 
         if (authToken == null){
-            FailureResponse response_403 = new FailureResponse(false, "Error: already taken");
+            FailureResponse response_403 = new FailureResponse("Error: already taken");
             return gson.toJson(response_403);
         } else {
-            UserResponse response_200 = new UserResponse(true, userReq.getUsername(), authToken);
+            UserResponse response_200 = new UserResponse((String) userReq.getUsername(), authToken);
             return gson.toJson(response_200);
         }
     }
 
     public String handleClear(Request req, Response res){
-        boolean descriptionCheck = false;
-        UserData userReq = null;
-        try {
-            userReq = (UserData) gson.fromJson(req.body(), UserData.class);
-        } catch(JsonSyntaxException e) {
-            descriptionCheck = true;
-        }
-
-        if (descriptionCheck){
-            FailureResponse response_500 = new FailureResponse("Error: description");
-            return gson.toJson(response_500);
-        }
+        service.clear();
+        res.status(200);
+        return "";
     }
 }
 

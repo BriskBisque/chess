@@ -10,4 +10,5 @@ public interface UserDAO{
     public void insertUser(UserData u) throws DataAccessException;
 
     public UserData getUser(UserData u) throws DataAccessException;
+    public void clear();
 }

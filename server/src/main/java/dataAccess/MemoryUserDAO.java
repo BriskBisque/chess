@@ -15,6 +15,10 @@ public class MemoryUserDAO implements UserDAO{
         users = new ArrayList<>();
     }
 
+    public void clear(){
+        users.clear();
+    }
+
     public void insertUser(UserData u) throws DataAccessException{
         this.users.add(u);
     }
