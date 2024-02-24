@@ -11,7 +11,7 @@ public class UserService {
     public UserService(){
         userDao = new MemoryUserDAO();
         authDao = new MemoryAuthDAO();
-        gameDao = new GameDAO();
+        gameDao = new MemoryGameDAO();
     }
 
     public String register(UserData user) throws DataAccessException {

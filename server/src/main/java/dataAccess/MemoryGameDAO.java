@@ -2,14 +2,15 @@ package dataAccess;
 
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryGameDAO implements GameDAO{
 
     Collection<GameData> gameData;
 
-    public MemoryGameDAO(Collection<GameData> gameData) {
-        this.gameData = gameData;
+    public MemoryGameDAO() {
+        this.gameData = new ArrayList<>();
     }
 
     @Override
