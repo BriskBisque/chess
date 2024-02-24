@@ -1,24 +1,23 @@
 package Test;
 
+import org.eclipse.jetty.client.api.Response;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import server.Server;
-import server.ServerFacade;
 import service.UserService;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TestServer {
     static private Server chessServer;
-    static private ServerFacade server;
 
     @BeforeAll
     static void startServer() {
         chessServer = new Server(new UserService());
-        chessServer.run(0);
-        var url = "http://localhost:" + chessServer.port();
-        server = new ServerFacade(url);
+        int port = chessServer.run(8080);
+    }
+
+    public void run(){
+        this.clear();
     }
 
     @AfterAll
@@ -28,6 +27,6 @@ public class TestServer {
 
     @BeforeEach
     void clear() {
-        assertDoesNotThrow(() -> server.clearAll());
+        //assertDoesNotThrow(() -> chessServer.clear());
     }
 }

@@ -73,10 +73,10 @@ public class Server {
         }
     }
 
-    public String clear(Request req, Response res){
+    public Object clear(Request req, Response res){
         service.clear();
         res.status(200);
-        return "";
+        return new Gson().toJson("");
     }
 
     public int port() {
