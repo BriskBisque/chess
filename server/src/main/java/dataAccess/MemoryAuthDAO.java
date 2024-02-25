@@ -14,12 +14,11 @@ public class MemoryAuthDAO implements AuthDAO{
 
     public MemoryAuthDAO(){}
 
-    public static AuthDAO getInstance(){
+    public static synchronized AuthDAO getInstance(){
         if (instance == null){
-            return new MemoryAuthDAO();
-        } else {
-            return instance;
+            instance = new MemoryAuthDAO();
         }
+        return instance;
     }
 
 
@@ -27,13 +26,11 @@ public class MemoryAuthDAO implements AuthDAO{
         auths = new ArrayList<>();
     }
 
-    @Override
-    public void insertAuth(AuthData a) throws DataAccessException {
+    public void insertAuth(AuthData a){
         auths.add(a);
     }
 
-    @Override
-    public AuthData getAuth(AuthData a) throws DataAccessException {
+    public AuthData getAuth(AuthData a){
         for (AuthData auth: auths){
             if (auth.equals(a)){
                 return auth;
@@ -42,12 +39,11 @@ public class MemoryAuthDAO implements AuthDAO{
         return null;
     }
 
-    @Override
-    public void deleteAuth(AuthData a) throws DataAccessException {
+    public void deleteAuth(AuthData a){
         auths.remove(a);
     }
 
-    public String createAuth(String username) throws DataAccessException {
+    public String createAuth(String username){
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, username);
         this.insertAuth(authData);

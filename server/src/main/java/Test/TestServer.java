@@ -23,7 +23,7 @@ public class TestServer {
     @BeforeAll
     static void startServer() {
         chessServer = new Server(new UserService());
-        int port = chessServer.run(8080);
+        int port = chessServer.run(0);
         facade = new ServerFacade("http://localhost:"+port);
     }
 

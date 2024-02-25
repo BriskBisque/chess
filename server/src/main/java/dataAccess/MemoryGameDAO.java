@@ -12,12 +12,11 @@ public class MemoryGameDAO implements GameDAO{
 
     public MemoryGameDAO() {}
 
-    public static GameDAO getInstance(){
+    public static synchronized GameDAO getInstance(){
         if (instance == null){
-            return new MemoryGameDAO();
-        } else {
-            return instance;
+            instance = new MemoryGameDAO();
         }
+        return instance;
     }
 
     @Override
@@ -26,22 +25,22 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData insertGame(GameData g) throws DataAccessException {
+    public GameData insertGame(GameData g){
         return null;
     }
 
     @Override
-    public GameData getGame(GameData g) throws DataAccessException {
+    public GameData getGame(GameData g){
         return null;
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
+    public Collection<GameData> listGames(){
         return null;
     }
 
     @Override
-    public void updateGame(GameData g) throws DataAccessException {
+    public void updateGame(GameData g){
 
     }
 }

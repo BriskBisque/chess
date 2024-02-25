@@ -14,23 +14,22 @@ public class MemoryUserDAO implements UserDAO{
 
     public MemoryUserDAO(){}
 
-    public static UserDAO getInstance(){
+    public static synchronized UserDAO getInstance(){
         if (instance == null){
-            return new MemoryUserDAO();
-        } else {
-            return instance;
+            instance = new MemoryUserDAO();
         }
+        return instance;
     }
 
     public void clear(){
         users = new ArrayList<>();
     }
 
-    public void insertUser(UserData u) throws DataAccessException{
+    public void insertUser(UserData u){
         users.add(u);
     }
 
-    public UserData getUser(UserData u) throws DataAccessException{
+    public UserData getUser(UserData u){
         if (users.isEmpty()){
             return null;
         }

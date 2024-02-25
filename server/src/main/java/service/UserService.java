@@ -12,7 +12,7 @@ public class UserService {
 
     public UserService(){}
 
-    public static UserService getInstance(){
+    public static synchronized UserService getInstance(){
         if (instance == null){
             return new UserService();
         } else {
@@ -45,7 +45,7 @@ public class UserService {
         if (loginData.password().equals(databasePassword)){
             return authDao.createAuth(loginData.username());
         } else {
-            throw new DataAccessException("Error: unauthorized");
+            return null;
         }
     }
 }

@@ -11,15 +11,23 @@ import spark.Response;
 
 public class Handler {
 
-    private final UserService service;
+    private final UserService service = UserService.getInstance();
+    private static Handler instance;
 
-    public Handler() {service = UserService.getInstance();}
+    public Handler() {}
+
+    public static synchronized Handler getInstance(){
+        if (instance == null){
+            return new Handler();
+        }
+        return instance;
+    }
 
     public Object register(Request req, Response res) throws DataAccessException {
         UserData userReq = null;
         try {
             userReq = (UserData) new Gson().fromJson(req.body(), UserData.class);
-        } catch(JsonSyntaxException e) {
+        } catch(Exception e) {
             FailureResponse response_500 = new FailureResponse(false, "Error: description");
             return new Gson().toJson(response_500);
         }
@@ -29,7 +37,7 @@ public class Handler {
         try {
             UserService service = new UserService();
             authToken = service.register(userReq);
-        } catch (DataAccessException e){
+        } catch (Exception e){
             FailureResponse response_400 = new FailureResponse(false, "Error: bad request");
             return new Gson().toJson(response_400);
         }
@@ -54,7 +62,7 @@ public class Handler {
         return new Gson().toJson(new Result(true));
     }
 
-    public Object login(Request req, Response res){
+    public Object login(Request req, Response res) throws DataAccessException {
         LoginData userReq;
         try {
             userReq = (LoginData) new Gson().fromJson(req.body(), LoginData.class);
@@ -65,15 +73,15 @@ public class Handler {
 
         String authToken = null;
 
-        try {
-            UserService service = new UserService();
-            authToken = service.login(userReq);
-        } catch (DataAccessException e){
-            FailureResponse response_401 = new FailureResponse(false, "Error: Unauthorized");
-            return new Gson().toJson(response_401);
-        }
+        UserService service = new UserService();
+        authToken = service.login(userReq);
 
-        UserResponse response_200 = new UserResponse(true, userReq.username(), authToken);
-        return new Gson().toJson(response_200);
+        if (authToken == null){
+            FailureResponse response_401 = new FailureResponse(false, "Error: unauthorized");
+            return new Gson().toJson(response_401);
+        } else {
+            UserResponse response_200 = new UserResponse(true, userReq.username(), authToken);
+            return new Gson().toJson(response_200);
+        }
     }
 }
