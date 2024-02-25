@@ -9,13 +9,22 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    static Collection<AuthData> auths = new ArrayList<>();
+    private static MemoryAuthDAO instance;
+    private  Collection<AuthData> auths = new ArrayList<>();
 
-    public MemoryAuthDAO(){
+    public MemoryAuthDAO(){}
+
+    public static AuthDAO getInstance(){
+        if (instance == null){
+            return new MemoryAuthDAO();
+        } else {
+            return instance;
+        }
     }
 
+
     public void clear(){
-        auths.clear();
+        auths = new ArrayList<>();
     }
 
     @Override
@@ -38,9 +47,9 @@ public class MemoryAuthDAO implements AuthDAO{
         auths.remove(a);
     }
 
-    public String createAuth(UserData u) throws DataAccessException {
+    public String createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, (String) u.getUsername());
+        AuthData authData = new AuthData(authToken, username);
         this.insertAuth(authData);
         return authToken;
     }

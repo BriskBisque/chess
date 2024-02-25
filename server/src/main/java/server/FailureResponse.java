@@ -2,4 +2,4 @@ package server;
 
 import java.util.Objects;
 
-record FailureResponse(String message){}
+record FailureResponse(boolean success , String message){}

@@ -11,4 +11,6 @@ public interface UserDAO{
 
     public UserData getUser(UserData u) throws DataAccessException;
     public void clear();
+
+    String selectPassword(String username) throws DataAccessException;
 }

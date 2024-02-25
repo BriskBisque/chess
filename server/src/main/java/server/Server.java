@@ -22,8 +22,9 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", this::register);
-        Spark.delete("/db", this::clear);
+        Spark.post("/user", (req, res) -> (new Handler()).register(req, res));
+        Spark.delete("/db", (req, res) -> (new Handler()).clear(req,res));
+        Spark.post("/session", (req, res) -> (new Handler()).login(req, res));
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -32,51 +33,6 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
-    }
-
-    private Object register(Request req, Response res) throws DataAccessException {
-        boolean descriptionCheck = false;
-        UserData userReq;
-        try {
-            userReq = (UserData) new Gson().fromJson(req.body(), UserData.class);
-        } catch(JsonSyntaxException e) {
-            descriptionCheck = true;
-            userReq = null;
-        }
-
-        if (descriptionCheck){
-            FailureResponse response_500 = new FailureResponse("Error: description");
-            return new Gson().toJson(response_500);
-        }
-
-        boolean badRequestCheck = false;
-        String authToken = null;
-
-        try {
-            UserService service = new UserService();
-            authToken = service.register(userReq);
-        } catch (DataAccessException e){
-            badRequestCheck = true;
-        }
-
-        if(badRequestCheck){
-            FailureResponse response_400 = new FailureResponse("Error: bad request");
-            return new Gson().toJson(response_400);
-        }
-
-        if (authToken == null){
-            FailureResponse response_403 = new FailureResponse("Error: already taken");
-            return new Gson().toJson(response_403);
-        } else {
-            UserResponse response_200 = new UserResponse((String) userReq.getUsername(), authToken);
-            return new Gson().toJson(response_200);
-        }
-    }
-
-    public Object clear(Request req, Response res){
-        service.clear();
-        res.status(200);
-        return new Gson().toJson("");
     }
 
     public int port() {

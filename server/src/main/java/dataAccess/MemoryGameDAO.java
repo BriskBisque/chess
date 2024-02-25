@@ -7,15 +7,22 @@ import java.util.Collection;
 
 public class MemoryGameDAO implements GameDAO{
 
-    Collection<GameData> gameData;
+    private Collection<GameData> gameData = new ArrayList<>();
+    private static MemoryGameDAO instance;
 
-    public MemoryGameDAO() {
-        this.gameData = new ArrayList<>();
+    public MemoryGameDAO() {}
+
+    public static GameDAO getInstance(){
+        if (instance == null){
+            return new MemoryGameDAO();
+        } else {
+            return instance;
+        }
     }
 
     @Override
     public void clear() {
-        gameData.clear();
+        gameData = new ArrayList<>();
     }
 
     @Override

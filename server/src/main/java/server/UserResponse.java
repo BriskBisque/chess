@@ -4,4 +4,4 @@ import spark.Response;
 
 import java.util.Objects;
 
-record UserResponse (String username, String AuthToken){}
+public record UserResponse (boolean success, String username, String AuthToken){}
