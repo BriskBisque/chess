@@ -2,6 +2,7 @@ package dataAccess;
 
 import chess.ChessGame;
 import model.GameData;
+import model.ObserversData;
 import model.UserData;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class MemoryGameDAO implements GameDAO{
 
     private Collection<GameData> games = new ArrayList<>();
     private static MemoryGameDAO instance;
+    private Collection<ObserversData> observersData = new ArrayList<>();
     private int numOfGames = 0;
 
     public MemoryGameDAO() {}
@@ -25,6 +27,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void clear() {
         games = new ArrayList<>();
+        observersData = new ArrayList<>();
         numOfGames = 0;
     }
 
@@ -34,12 +37,12 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData getGame(String gameName){
+    public GameData getGame(int gameID) throws DataAccessException{
         if (games.isEmpty()){
-            return null;
+            throw new DataAccessException("Error: bad request");
         }
         for (GameData game: games){
-            if (game.gameName().equals(gameName)){
+            if (game.gameID() == (gameID)){
                 return game;
             }
         }
@@ -59,7 +62,36 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(GameData g){
+    public void updateGame(GameData game) throws DataAccessException {
+        if (games.isEmpty()){
+            throw new DataAccessException("Error: bad request");
+        }
+        for (GameData databaseGame: games){
+            if (databaseGame.gameID() == (game.gameID())){
+                games.remove(databaseGame);
+                games.add(game);
+                break;
+            }
+        }
+    }
 
+    public void addObserver(GameData game, String authToken){
+        if (observersData.isEmpty()){
+            Collection<String> observersList = new ArrayList<>();
+            observersList.add(authToken);
+            ObserversData newObserver = new ObserversData(game, observersList);
+            observersData.add(newObserver);
+        } else {
+            for (ObserversData data: observersData){
+                if (data.gameData().gameID() == game.gameID()){
+                    Collection<String> observerList = data.observers();
+                    observerList.add(authToken);
+                    ObserversData newObserver = new ObserversData(data.gameData(), observerList);
+                    observersData.remove(data);
+                    observersData.add(newObserver);
+                    break;
+                }
+            }
+        }
     }
 }

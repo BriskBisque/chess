@@ -3,11 +3,14 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
+import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
 import service.UserService;
 import spark.Request;
 import spark.Response;
+
+import java.util.Collection;
 
 public class Handler {
 
@@ -132,6 +135,50 @@ public class Handler {
         }
 
         res.status(200);
-        return new Gson().toJson(new GameResponse(gameID));
+        return new Gson().toJson(new GameIDResponse(gameID));
+    }
+
+    public Object joinGame(Request req, Response res) {
+        String authToken = null;
+        JoinGameData gameReqData;
+        try {
+            authToken = req.headers("authorization");
+            gameReqData = (JoinGameData) new Gson().fromJson(req.body(), JoinGameData.class);
+        } catch(JsonSyntaxException e) {
+            FailureResponse response_500 = new FailureResponse("Error: description");
+            return new Gson().toJson(response_500);
+        }
+
+        try {
+            service.joinGame(gameReqData, authToken);
+        } catch (DataAccessException e){
+            FailureResponse fail_response = new FailureResponse("Error: unauthorized");
+            return new Gson().toJson(fail_response);
+        }
+
+        res.status(200);
+        return new Gson().toJson(new Result());
+    }
+
+    public Object listGames(Request req, Response res) {
+        String authToken = null;
+        try {
+            authToken = req.headers("authorization");
+        } catch(JsonSyntaxException e) {
+            FailureResponse response_500 = new FailureResponse("Error: description");
+            return new Gson().toJson(response_500);
+        }
+
+        Collection<GameResponseData> games;
+
+        try {
+            games = service.listGames(authToken);
+        } catch (DataAccessException e){
+            FailureResponse fail_response = new FailureResponse("Error: unauthorized");
+            return new Gson().toJson(fail_response);
+        }
+
+        res.status(200);
+        return new Gson().toJson(new ListGameResponse(games));
     }
 }

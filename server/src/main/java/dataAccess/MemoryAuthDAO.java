@@ -54,4 +54,13 @@ public class MemoryAuthDAO implements AuthDAO{
         this.insertAuth(authData);
         return authToken;
     }
+
+    public String getUser(String authToken) throws DataAccessException{
+        for (AuthData auth: auths){
+            if (auth.authToken().equals(authToken)){
+                return auth.username();
+            }
+        }
+        throw new DataAccessException("Error: unauthorized");
+    }
 }

@@ -2,8 +2,14 @@ package service;
 
 import dataAccess.*;
 import model.GameData;
+import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
+import server.GameResponseData;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public class UserService {
     private static UserService instance;
@@ -67,5 +73,39 @@ public class UserService {
         } else {
             throw new DataAccessException("Error: bad request");
         }
+    }
+
+    public void joinGame(JoinGameData gameReqData, String authToken) throws DataAccessException {
+        GameData game = gameDao.getGame(gameReqData.gameID());
+        String username = authDao.getUser(authToken);
+        if (Objects.equals(gameReqData.playerColor(), "BLACK")) {
+            if (game.blackUsername() == null) {
+                game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                gameDao.updateGame(game);
+            } else {
+                gameDao.addObserver(game, authToken);
+            }
+        } else if (Objects.equals(gameReqData.playerColor(), "WHITE")) {
+            if (game.whiteUsername() == null) {
+                game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                gameDao.updateGame(game);
+            } else {
+                gameDao.addObserver(game, authToken);
+            }
+        } else {
+            gameDao.addObserver(game, authToken);
+        }
+    }
+
+    public Collection<GameResponseData> listGames(String authToken) throws DataAccessException {
+        testAuth(authToken);
+        Collection<GameData> games = gameDao.listGames();
+        Collection<GameResponseData> resultGames = new ArrayList<>();
+        GameResponseData toAdd;
+        for (GameData game: games){
+            toAdd = new GameResponseData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+            resultGames.add(toAdd);
+        }
+        return resultGames;
     }
 }
