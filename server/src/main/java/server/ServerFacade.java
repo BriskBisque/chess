@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import model.AuthData;
 import model.LoginData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
@@ -31,9 +32,14 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null);
     }
 
-    public UserData loginUser(LoginData user) throws DataAccessException{
+    public AuthData loginUser(LoginData user) throws DataAccessException{
         var path = "/session";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, user, AuthData.class);
+    }
+
+    public void logoutUser(String authToken) throws DataAccessException{
+        var path = "/session";
+        this.makeRequest("DELETE", path, authToken, AuthData.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws DataAccessException{

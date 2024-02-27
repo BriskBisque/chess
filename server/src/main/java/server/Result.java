@@ -1,4 +1,4 @@
 package server;
 
-public record Result(boolean success){
+public record Result(){
 }

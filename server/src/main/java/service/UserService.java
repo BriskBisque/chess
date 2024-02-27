@@ -45,7 +45,21 @@ public class UserService {
         if (loginData.password().equals(databasePassword)){
             return authDao.createAuth(loginData.username());
         } else {
-            return null;
+            throw new DataAccessException("Error: unauthorized");
         }
+    }
+
+    public void logout(String authToken) throws DataAccessException {
+        authDao.deleteAuth(authToken);
+    }
+
+    public void testAuth(String authToken) throws DataAccessException{]
+        if (Object.equals(authDao.getAuth(authToken), null)){
+            throw new DataAccessException("Error: unathorized");
+        }
+    }
+
+    public int getGame(String gameName) throws DataAccessException{
+        return gameDao.getGame(gameName);
     }
 }

@@ -41,14 +41,10 @@ public class MemoryUserDAO implements UserDAO{
         return null;
     }
 
-    public void checkEmpty() throws DataAccessException{
+    public String selectPassword(String username){
         if (users.isEmpty()){
-            throw new DataAccessException("Error: no users");
+            return null;
         }
-    }
-
-    public String selectPassword(String username) throws DataAccessException {
-        checkEmpty();
         for (UserData user: users){
             if (user.username().equals(username)){
                 return user.password();

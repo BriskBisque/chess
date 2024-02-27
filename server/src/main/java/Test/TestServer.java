@@ -1,6 +1,7 @@
 package Test;
 
 import com.google.gson.Gson;
+import model.AuthData;
 import model.LoginData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
@@ -49,7 +50,16 @@ public class TestServer {
         UserData user = new UserData("username", "password", "email");
         UserData result = assertDoesNotThrow(() -> facade.registerUser(user));
         LoginData login = new LoginData("username", "password");
-        result = assertDoesNotThrow(() -> facade.loginUser(login));
-        assertEquals(login.username(), result.username());
+        AuthData resultAuth = assertDoesNotThrow(() -> facade.loginUser(login));
+        assertEquals(login.username(), resultAuth.username());
+    }
+
+    @Test
+    void logoutUser(){
+        UserData user = new UserData("username", "password", "email");
+        UserData resultUser = assertDoesNotThrow(() -> facade.registerUser(user));
+        LoginData login = new LoginData("username", "password");
+        AuthData resultAuth = assertDoesNotThrow(() -> facade.loginUser(login));
+        assertDoesNotThrow(() -> facade.logoutUser(resultAuth.authToken()));
     }
 }

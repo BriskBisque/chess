@@ -5,12 +5,14 @@ import model.UserData;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class MemoryAuthDAO implements AuthDAO{
 
     private static MemoryAuthDAO instance;
-    private  Collection<AuthData> auths = new ArrayList<>();
+    private Collection<AuthData> auths = new ArrayList<>();
 
     public MemoryAuthDAO(){}
 
@@ -30,17 +32,20 @@ public class MemoryAuthDAO implements AuthDAO{
         auths.add(a);
     }
 
-    public AuthData getAuth(AuthData a){
+    public AuthData getAuth(String authToken){
         for (AuthData auth: auths){
-            if (auth.equals(a)){
+            if (auth.authToken().equals(authToken)){
                 return auth;
             }
         }
         return null;
     }
 
-    public void deleteAuth(AuthData a){
-        auths.remove(a);
+    public void deleteAuth(String authToken) throws DataAccessException {
+        Predicate<AuthData> isAuthToken = data -> Objects.equals(data.authToken(), authToken);
+        if (!auths.removeIf(isAuthToken)){
+            throw new DataAccessException("Error: unauthorized");
+        }
     }
 
     public String createAuth(String username){

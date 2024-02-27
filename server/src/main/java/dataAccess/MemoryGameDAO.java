@@ -1,13 +1,14 @@
 package dataAccess;
 
 import model.GameData;
+import model.UserData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryGameDAO implements GameDAO{
 
-    private Collection<GameData> gameData = new ArrayList<>();
+    private Collection<GameData> games = new ArrayList<>();
     private static MemoryGameDAO instance;
 
     public MemoryGameDAO() {}
@@ -21,16 +22,24 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public void clear() {
-        gameData = new ArrayList<>();
+        games = new ArrayList<>();
     }
 
     @Override
-    public GameData insertGame(GameData g){
-        return null;
+    public GameData insertGame(GameData game){
+        games.add(game);
     }
 
     @Override
-    public GameData getGame(GameData g){
+    public GameData getGame(String gameName){
+        if (games.isEmpty()){
+            return null;
+        }
+        for (GameData game: games){
+            if (game.gameName().equals(gameName)){
+                return game;
+            }
+        }
         return null;
     }
 
