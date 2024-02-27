@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessGame;
 import model.GameData;
 import model.UserData;
 
@@ -10,6 +11,7 @@ public class MemoryGameDAO implements GameDAO{
 
     private Collection<GameData> games = new ArrayList<>();
     private static MemoryGameDAO instance;
+    private int numOfGames = 0;
 
     public MemoryGameDAO() {}
 
@@ -23,10 +25,11 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void clear() {
         games = new ArrayList<>();
+        numOfGames = 0;
     }
 
     @Override
-    public GameData insertGame(GameData game){
+    public void insertGame(GameData game){
         games.add(game);
     }
 
@@ -43,9 +46,16 @@ public class MemoryGameDAO implements GameDAO{
         return null;
     }
 
+    public GameData createGame(String gameName){
+        GameData newGame = new GameData(numOfGames, null, null, gameName, new ChessGame());
+        numOfGames++;
+        insertGame(newGame);
+        return newGame;
+    }
+
     @Override
     public Collection<GameData> listGames(){
-        return null;
+        return games;
     }
 
     @Override

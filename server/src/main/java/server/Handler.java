@@ -125,13 +125,13 @@ public class Handler {
         int gameID = 0;
 
         try {
-            gameID = service.getGame(gameName);
+            gameID = service.createGame(gameName);
         } catch (DataAccessException e){
             FailureResponse response_400 = new FailureResponse("Error: bad request");
             return new Gson().toJson(response_400);
         }
 
         res.status(200);
-        return new Gson().toJson(new Result());
+        return new Gson().toJson(new GameResponse(gameID));
     }
 }

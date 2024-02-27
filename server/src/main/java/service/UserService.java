@@ -1,6 +1,7 @@
 package service;
 
 import dataAccess.*;
+import model.GameData;
 import model.LoginData;
 import model.UserData;
 
@@ -53,13 +54,18 @@ public class UserService {
         authDao.deleteAuth(authToken);
     }
 
-    public void testAuth(String authToken) throws DataAccessException{]
-        if (Object.equals(authDao.getAuth(authToken), null)){
+    public void testAuth(String authToken) throws DataAccessException{
+        if (authDao.getAuth(authToken) == null){
             throw new DataAccessException("Error: unathorized");
         }
     }
 
-    public int getGame(String gameName) throws DataAccessException{
-        return gameDao.getGame(gameName);
+    public int createGame(String gameName) throws DataAccessException{
+        GameData game = gameDao.createGame(gameName);
+        if (game != null){
+            return game.gameID();
+        } else {
+            throw new DataAccessException("Error: bad request");
+        }
     }
 }
