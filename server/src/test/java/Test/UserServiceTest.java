@@ -115,7 +115,7 @@ class UserServiceTest {
     @Test
     void createGameNeg() {
         assertThrows(DataAccessException.class, () -> {
-            service.createGame(null);
+            service.createGame("");
         });
     }
 

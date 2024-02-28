@@ -67,11 +67,9 @@ public class UserService {
     }
 
     public int createGame(String gameName) throws DataAccessException{
-        if (gameName != null) {
+        if (!Objects.equals(gameName, "")) {
             GameData game = gameDao.createGame(gameName);
-            if (game != null) {
-                return game.gameID();
-            }
+            return game.gameID();
         }
         throw new DataAccessException("Error: bad request");
     }
@@ -93,8 +91,10 @@ public class UserService {
             } else {
                 throw new DataAccessException("Error: already taken");
             }
-        } else {
+        } else if (Objects.equals(gameReqData.playerColor(), null)) {
             gameDao.addObserver(game, authToken);
+        } else {
+            throw new DataAccessException("Error: already taken");
         }
     }
 

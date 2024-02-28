@@ -11,6 +11,7 @@ import spark.Request;
 import spark.Response;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class Handler {
 
@@ -28,11 +29,12 @@ public class Handler {
 
     public Object register(Request req, Response res) throws DataAccessException {
         UserData userReq = null;
-        try {
-            userReq = (UserData) new Gson().fromJson(req.body(), UserData.class);
-        } catch(Exception e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
-            return new Gson().toJson(response_500);
+        userReq = (UserData) new Gson().fromJson(req.body(), UserData.class);
+
+        if (userReq.username() == null || userReq.password() == null || userReq.email() == null){
+            res.status(400);
+            FailureResponse response_400 = new FailureResponse("Error: bad request");
+            return new Gson().toJson(response_400);
         }
 
         String authToken = null;
@@ -41,19 +43,14 @@ public class Handler {
             UserService service = new UserService();
             authToken = service.register(userReq);
         } catch (DataAccessException e){
-            res.status(400);
-            FailureResponse response_400 = new FailureResponse("Error: bad request");
-            return new Gson().toJson(response_400);
-        }
-
-        if (authToken == null){
             res.status(403);
             FailureResponse response_403 = new FailureResponse("Error: already taken");
             return new Gson().toJson(response_403);
-        } else {
-            UserResponse response_200 = new UserResponse(userReq.username(), authToken);
-            return new Gson().toJson(response_200);
         }
+
+        UserResponse response_200 = new UserResponse(userReq.username(), authToken);
+        return new Gson().toJson(response_200);
+
     }
 
     public Object clear(Request req, Response res){
@@ -86,6 +83,7 @@ public class Handler {
             return new Gson().toJson(response_401);
         }
 
+        res.status(200);
         UserResponse response_200 = new UserResponse(userReq.username(), authToken);
         return new Gson().toJson(response_200);
     }
@@ -145,14 +143,15 @@ public class Handler {
     }
 
     public Object joinGame(Request req, Response res) {
-        String authToken = null;
         JoinGameData gameReqData;
-        try {
-            authToken = req.headers("authorization");
-            gameReqData = (JoinGameData) new Gson().fromJson(req.body(), JoinGameData.class);
-        } catch(JsonSyntaxException e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
-            return new Gson().toJson(response_500);
+
+        String authToken = req.headers("authorization");
+        gameReqData = new Gson().fromJson(req.body(), JoinGameData.class);
+
+        if ((!Objects.equals(gameReqData.playerColor(), "WHITE") && !Objects.equals(gameReqData.playerColor(), "BLACK") && !Objects.equals(gameReqData.playerColor(), null)) || Objects.equals(gameReqData.gameID(), 0)){
+            res.status(400);
+            FailureResponse response_400 = new FailureResponse("Error: bad request");
+            return new Gson().toJson(response_400);
         }
 
         try {
@@ -166,15 +165,9 @@ public class Handler {
         try {
             service.joinGame(gameReqData, authToken);
         } catch (DataAccessException e){
-            if (e.getMessage().equals("Error: already taken")) {
-                res.status(403);
-                FailureResponse response_403 = new FailureResponse("Error: already taken");
-                return new Gson().toJson(response_403);
-            } else {
-                res.status(400);
-                FailureResponse response_400 = new FailureResponse("Error: bad request");
-                return new Gson().toJson(response_400);
-            }
+            res.status(403);
+            FailureResponse response_403 = new FailureResponse("Error: already taken");
+            return new Gson().toJson(response_403);
         }
 
         res.status(200);
