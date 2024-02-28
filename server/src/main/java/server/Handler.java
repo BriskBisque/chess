@@ -40,12 +40,14 @@ public class Handler {
         try {
             UserService service = new UserService();
             authToken = service.register(userReq);
-        } catch (Exception e){
+        } catch (DataAccessException e){
+            res.status(400);
             FailureResponse response_400 = new FailureResponse("Error: bad request");
             return new Gson().toJson(response_400);
         }
 
         if (authToken == null){
+            res.status(403);
             FailureResponse response_403 = new FailureResponse("Error: already taken");
             return new Gson().toJson(response_403);
         } else {
@@ -79,6 +81,7 @@ public class Handler {
         try {
             authToken = service.login(userReq);
         } catch (DataAccessException e){
+            res.status(401);
             FailureResponse response_401 = new FailureResponse("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
@@ -99,6 +102,7 @@ public class Handler {
         try {
             service.logout(authToken);
         } catch (DataAccessException e){
+            res.status(401);
             FailureResponse response_401 = new FailureResponse("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
@@ -121,6 +125,7 @@ public class Handler {
         try {
             service.testAuth(authToken);
         } catch (DataAccessException e){
+            res.status(401);
             FailureResponse response_401 = new FailureResponse("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
@@ -130,6 +135,7 @@ public class Handler {
         try {
             gameID = service.createGame(gameName);
         } catch (DataAccessException e){
+            res.status(400);
             FailureResponse response_400 = new FailureResponse("Error: bad request");
             return new Gson().toJson(response_400);
         }
@@ -150,10 +156,25 @@ public class Handler {
         }
 
         try {
+            service.testAuth(authToken);
+        } catch (DataAccessException e){
+            res.status(401);
+            FailureResponse response_401 = new FailureResponse("Error: unauthorized");
+            return new Gson().toJson(response_401);
+        }
+
+        try {
             service.joinGame(gameReqData, authToken);
         } catch (DataAccessException e){
-            FailureResponse fail_response = new FailureResponse("Error: unauthorized");
-            return new Gson().toJson(fail_response);
+            if (e.getMessage().equals("Error: already taken")) {
+                res.status(403);
+                FailureResponse response_403 = new FailureResponse("Error: already taken");
+                return new Gson().toJson(response_403);
+            } else {
+                res.status(400);
+                FailureResponse response_400 = new FailureResponse("Error: bad request");
+                return new Gson().toJson(response_400);
+            }
         }
 
         res.status(200);
@@ -174,6 +195,7 @@ public class Handler {
         try {
             games = service.listGames(authToken);
         } catch (DataAccessException e){
+            res.status(401);
             FailureResponse fail_response = new FailureResponse("Error: unauthorized");
             return new Gson().toJson(fail_response);
         }

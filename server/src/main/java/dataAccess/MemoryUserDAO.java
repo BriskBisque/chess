@@ -25,8 +25,12 @@ public class MemoryUserDAO implements UserDAO{
         users = new ArrayList<>();
     }
 
-    public void insertUser(UserData u){
-        users.add(u);
+    public void insertUser(UserData user) throws DataAccessException {
+        if (user.password() != null && user.username() != null) {
+            users.add(user);
+        } else {
+            throw new DataAccessException("Error: bad request");
+        }
     }
 
     public UserData getUser(UserData u){

@@ -13,5 +13,5 @@ public interface GameDAO {
     public void updateGame(GameData g) throws DataAccessException;
 
     GameData createGame(String gameName);
-    public void addObserver(GameData game, String authToken);
+    public void addObserver(GameData game, String authToken) throws DataAccessException;
 }

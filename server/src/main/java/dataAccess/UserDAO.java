@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface UserDAO{
 
-    public void insertUser(UserData u) throws DataAccessException;
+    public void insertUser(UserData user) throws DataAccessException;
 
     public UserData getUser(UserData u) throws DataAccessException;
     public void clear();

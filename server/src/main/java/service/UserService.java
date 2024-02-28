@@ -83,14 +83,14 @@ public class UserService {
                 game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
                 gameDao.updateGame(game);
             } else {
-                gameDao.addObserver(game, authToken);
+                throw new DataAccessException("Error: already taken");
             }
         } else if (Objects.equals(gameReqData.playerColor(), "WHITE")) {
             if (game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
                 gameDao.updateGame(game);
             } else {
-                gameDao.addObserver(game, authToken);
+                throw new DataAccessException("Error: already taken");
             }
         } else {
             gameDao.addObserver(game, authToken);

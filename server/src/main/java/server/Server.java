@@ -9,11 +9,8 @@ import service.UserService;
 import spark.*;
 
 public class Server {
+    public Server() {
 
-    private final UserService service;
-
-    public Server(UserService service) {
-        this.service = service;
     }
 
     public int run(int desiredPort) {

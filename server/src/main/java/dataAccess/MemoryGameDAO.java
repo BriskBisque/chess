@@ -13,7 +13,7 @@ public class MemoryGameDAO implements GameDAO{
     private Collection<GameData> games = new ArrayList<>();
     private static MemoryGameDAO instance;
     private Collection<ObserversData> observersData = new ArrayList<>();
-    private int numOfGames = 0;
+    private int numOfGames = 1;
 
     public MemoryGameDAO() {}
 
@@ -28,7 +28,7 @@ public class MemoryGameDAO implements GameDAO{
     public void clear() {
         games = new ArrayList<>();
         observersData = new ArrayList<>();
-        numOfGames = 0;
+        numOfGames = 1;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class MemoryGameDAO implements GameDAO{
                 return game;
             }
         }
-        return null;
+        throw new DataAccessException("Error: bad request");
     }
 
     public GameData createGame(String gameName){
@@ -75,7 +75,7 @@ public class MemoryGameDAO implements GameDAO{
         }
     }
 
-    public void addObserver(GameData game, String authToken){
+    public void addObserver(GameData game, String authToken) {
         if (observersData.isEmpty()){
             Collection<String> observersList = new ArrayList<>();
             observersList.add(authToken);

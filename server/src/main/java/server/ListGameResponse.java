@@ -4,4 +4,4 @@ import model.GameData;
 
 import java.util.Collection;
 
-public record ListGameResponse(Collection<GameData> games) {}
+public record ListGameResponse(Collection<GameResponseData> games) {}
