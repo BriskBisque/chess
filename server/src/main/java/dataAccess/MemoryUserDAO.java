@@ -21,6 +21,10 @@ public class MemoryUserDAO implements UserDAO{
         return instance;
     }
 
+    public Collection<UserData> getUsers() {
+        return users;
+    }
+
     public void clear(){
         users = new ArrayList<>();
     }
@@ -33,12 +37,12 @@ public class MemoryUserDAO implements UserDAO{
         }
     }
 
-    public UserData getUser(UserData u){
+    public UserData getUser(UserData user) {
         if (users.isEmpty()){
             return null;
         }
-        for (UserData user: users){
-            if (user.equals(u)){
+        for (UserData databaseUser: users){
+            if (databaseUser.equals(user)){
                 return user;
             }
         }

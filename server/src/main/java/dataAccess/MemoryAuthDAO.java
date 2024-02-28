@@ -23,13 +23,16 @@ public class MemoryAuthDAO implements AuthDAO{
         return instance;
     }
 
+    public Collection<AuthData> getAuths() {
+        return auths;
+    }
 
     public void clear(){
         auths = new ArrayList<>();
     }
 
-    public void insertAuth(AuthData a){
-        auths.add(a);
+    public void insertAuth(AuthData authToken){
+        auths.add(authToken);
     }
 
     public AuthData getAuth(String authToken){

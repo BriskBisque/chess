@@ -24,6 +24,14 @@ public class MemoryGameDAO implements GameDAO{
         return instance;
     }
 
+    public Collection<GameData> getGames() {
+        return games;
+    }
+
+    public Collection<ObserversData> getObserversData() {
+        return observersData;
+    }
+
     @Override
     public void clear() {
         games = new ArrayList<>();

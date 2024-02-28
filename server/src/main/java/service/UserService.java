@@ -33,7 +33,7 @@ public class UserService {
             userDao.insertUser(user);
             return authDao.createAuth(user.username());
         } else {
-            return null;
+            throw new DataAccessException("Error: already taken");
         }
     }
 
@@ -67,12 +67,13 @@ public class UserService {
     }
 
     public int createGame(String gameName) throws DataAccessException{
-        GameData game = gameDao.createGame(gameName);
-        if (game != null){
-            return game.gameID();
-        } else {
-            throw new DataAccessException("Error: bad request");
+        if (gameName != null) {
+            GameData game = gameDao.createGame(gameName);
+            if (game != null) {
+                return game.gameID();
+            }
         }
+        throw new DataAccessException("Error: bad request");
     }
 
     public void joinGame(JoinGameData gameReqData, String authToken) throws DataAccessException {
@@ -107,5 +108,17 @@ public class UserService {
             resultGames.add(toAdd);
         }
         return resultGames;
+    }
+
+    public AuthDAO getAuthDao() {
+        return authDao;
+    }
+
+    public UserDAO getUserDao() {
+        return userDao;
+    }
+
+    public GameDAO getGameDao() {
+        return gameDao;
     }
 }
