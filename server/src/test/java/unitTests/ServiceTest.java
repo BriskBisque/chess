@@ -8,17 +8,17 @@ import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import server.resultRecords.GameResult;
-import service.UserService;
+import model.GameResult;
+import service.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserServiceTest {
+class ServiceTest {
 
-    static private UserService service;
+    static private Service service;
 
     @AfterEach
     void clear() {
@@ -30,7 +30,7 @@ class UserServiceTest {
 
     @BeforeAll
     static void getInstance() {
-        assertDoesNotThrow(() -> service = UserService.getInstance());
+        assertDoesNotThrow(() -> service = Service.getInstance());
     }
 
     @Test

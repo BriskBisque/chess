@@ -1,11 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
-import model.UserData;
-import org.eclipse.jetty.websocket.server.WebSocketHandler;
-import service.UserService;
 import spark.*;
 
 public class Server {

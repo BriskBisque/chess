@@ -3,12 +3,8 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
-import model.JoinGameData;
-import model.LoginData;
-import model.UserData;
-import server.resultRecords.*;
-import server.resultRecords.FailureResult;
-import service.UserService;
+import model.*;
+import service.Service;
 import spark.Request;
 import spark.Response;
 
@@ -17,7 +13,7 @@ import java.util.Objects;
 
 public class Handler {
 
-    private final UserService service = UserService.getInstance();
+    private final Service service = Service.getInstance();
     private static Handler instance;
 
     public Handler() {}
@@ -42,7 +38,7 @@ public class Handler {
         String authToken = null;
 
         try {
-            UserService service = new UserService();
+            Service service = new Service();
             authToken = service.register(userReq);
         } catch (DataAccessException e){
             res.status(403);

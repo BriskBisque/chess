@@ -5,23 +5,23 @@ import model.GameData;
 import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
-import server.resultRecords.GameResult;
+import model.GameResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-public class UserService {
-    private static UserService instance;
+public class Service {
+    private static Service instance;
     private final AuthDAO authDao = MemoryAuthDAO.getInstance();
     private final UserDAO userDao = MemoryUserDAO.getInstance();
     private final GameDAO gameDao = MemoryGameDAO.getInstance();
 
-    public UserService(){}
+    public Service(){}
 
-    public static synchronized UserService getInstance(){
+    public static synchronized Service getInstance(){
         if (instance == null){
-            return new UserService();
+            return new Service();
         } else {
             return instance;
         }

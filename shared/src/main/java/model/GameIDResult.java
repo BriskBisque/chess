@@ -1,3 +1,3 @@
-package server.resultRecords;
+package model;
 
 public record GameIDResult(int gameID) {}

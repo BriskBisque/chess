@@ -1,6 +1,4 @@
-package server.resultRecords;
-
-import server.resultRecords.GameResult;
+package model;
 
 import java.util.Collection;
 
