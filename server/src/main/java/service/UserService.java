@@ -5,7 +5,7 @@ import model.GameData;
 import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
-import server.GameResponseData;
+import server.resultRecords.GameResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,13 +98,13 @@ public class UserService {
         }
     }
 
-    public Collection<GameResponseData> listGames(String authToken) throws DataAccessException {
+    public Collection<GameResult> listGames(String authToken) throws DataAccessException {
         testAuth(authToken);
         Collection<GameData> games = gameDao.listGames();
-        Collection<GameResponseData> resultGames = new ArrayList<>();
-        GameResponseData toAdd;
+        Collection<GameResult> resultGames = new ArrayList<>();
+        GameResult toAdd;
         for (GameData game: games){
-            toAdd = new GameResponseData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+            toAdd = new GameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
             resultGames.add(toAdd);
         }
         return resultGames;

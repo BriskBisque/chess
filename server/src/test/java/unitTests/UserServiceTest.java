@@ -1,6 +1,5 @@
-package Test;
+package unitTests;
 
-import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.GameData;
 import model.JoinGameData;
@@ -9,7 +8,7 @@ import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import server.GameResponseData;
+import server.resultRecords.GameResult;
 import service.UserService;
 
 import java.util.ArrayList;
@@ -158,10 +157,10 @@ class UserServiceTest {
         int gameID = assertDoesNotThrow(() -> service.createGame("AAAAAA"));
         JoinGameData joinGameData = new JoinGameData("WHITE", gameID);
         assertDoesNotThrow(() -> service.joinGame(joinGameData, authToken));
-        Collection<GameResponseData> gameList = assertDoesNotThrow(() -> service.listGames(authToken));
+        Collection<GameResult> gameList = assertDoesNotThrow(() -> service.listGames(authToken));
 
-        Collection<GameResponseData> expectedList = new ArrayList<>();
-        GameResponseData game = new GameResponseData(gameID, "username", null, "AAAAAA");
+        Collection<GameResult> expectedList = new ArrayList<>();
+        GameResult game = new GameResult(gameID, "username", null, "AAAAAA");
         expectedList.add(game);
 
         assertEquals(gameList, expectedList);

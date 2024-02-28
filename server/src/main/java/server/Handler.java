@@ -6,6 +6,8 @@ import dataAccess.DataAccessException;
 import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
+import server.resultRecords.*;
+import server.resultRecords.FailureResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -33,7 +35,7 @@ public class Handler {
 
         if (userReq.username() == null || userReq.password() == null || userReq.email() == null){
             res.status(400);
-            FailureResponse response_400 = new FailureResponse("Error: bad request");
+            FailureResult response_400 = new FailureResult("Error: bad request");
             return new Gson().toJson(response_400);
         }
 
@@ -44,11 +46,11 @@ public class Handler {
             authToken = service.register(userReq);
         } catch (DataAccessException e){
             res.status(403);
-            FailureResponse response_403 = new FailureResponse("Error: already taken");
+            FailureResult response_403 = new FailureResult("Error: already taken");
             return new Gson().toJson(response_403);
         }
 
-        UserResponse response_200 = new UserResponse(userReq.username(), authToken);
+        UserResult response_200 = new UserResult(userReq.username(), authToken);
         return new Gson().toJson(response_200);
 
     }
@@ -57,7 +59,7 @@ public class Handler {
         try {
             service.clear();
         } catch (Exception e){
-            FailureResponse response_500 = new FailureResponse("Error: description");
+            FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);
         }
         res.status(200);
@@ -69,7 +71,7 @@ public class Handler {
         try {
             userReq = (LoginData) new Gson().fromJson(req.body(), LoginData.class);
         } catch(JsonSyntaxException e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
+            FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);
         }
 
@@ -79,12 +81,12 @@ public class Handler {
             authToken = service.login(userReq);
         } catch (DataAccessException e){
             res.status(401);
-            FailureResponse response_401 = new FailureResponse("Error: unauthorized");
+            FailureResult response_401 = new FailureResult("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
 
         res.status(200);
-        UserResponse response_200 = new UserResponse(userReq.username(), authToken);
+        UserResult response_200 = new UserResult(userReq.username(), authToken);
         return new Gson().toJson(response_200);
     }
 
@@ -93,7 +95,7 @@ public class Handler {
         try {
             authToken = req.headers("authorization");
         } catch(JsonSyntaxException e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
+            FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);
         }
 
@@ -101,7 +103,7 @@ public class Handler {
             service.logout(authToken);
         } catch (DataAccessException e){
             res.status(401);
-            FailureResponse response_401 = new FailureResponse("Error: unauthorized");
+            FailureResult response_401 = new FailureResult("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
 
@@ -116,7 +118,7 @@ public class Handler {
             authToken = req.headers("authorization");
             gameName = req.queryParams("gameName");
         } catch(JsonSyntaxException e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
+            FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);
         }
 
@@ -124,7 +126,7 @@ public class Handler {
             service.testAuth(authToken);
         } catch (DataAccessException e){
             res.status(401);
-            FailureResponse response_401 = new FailureResponse("Error: unauthorized");
+            FailureResult response_401 = new FailureResult("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
 
@@ -134,12 +136,12 @@ public class Handler {
             gameID = service.createGame(gameName);
         } catch (DataAccessException e){
             res.status(400);
-            FailureResponse response_400 = new FailureResponse("Error: bad request");
+            FailureResult response_400 = new FailureResult("Error: bad request");
             return new Gson().toJson(response_400);
         }
 
         res.status(200);
-        return new Gson().toJson(new GameIDResponse(gameID));
+        return new Gson().toJson(new GameIDResult(gameID));
     }
 
     public Object joinGame(Request req, Response res) {
@@ -150,7 +152,7 @@ public class Handler {
 
         if ((!Objects.equals(gameReqData.playerColor(), "WHITE") && !Objects.equals(gameReqData.playerColor(), "BLACK") && !Objects.equals(gameReqData.playerColor(), null)) || Objects.equals(gameReqData.gameID(), 0)){
             res.status(400);
-            FailureResponse response_400 = new FailureResponse("Error: bad request");
+            FailureResult response_400 = new FailureResult("Error: bad request");
             return new Gson().toJson(response_400);
         }
 
@@ -158,7 +160,7 @@ public class Handler {
             service.testAuth(authToken);
         } catch (DataAccessException e){
             res.status(401);
-            FailureResponse response_401 = new FailureResponse("Error: unauthorized");
+            FailureResult response_401 = new FailureResult("Error: unauthorized");
             return new Gson().toJson(response_401);
         }
 
@@ -166,7 +168,7 @@ public class Handler {
             service.joinGame(gameReqData, authToken);
         } catch (DataAccessException e){
             res.status(403);
-            FailureResponse response_403 = new FailureResponse("Error: already taken");
+            FailureResult response_403 = new FailureResult("Error: already taken");
             return new Gson().toJson(response_403);
         }
 
@@ -179,21 +181,21 @@ public class Handler {
         try {
             authToken = req.headers("authorization");
         } catch(JsonSyntaxException e) {
-            FailureResponse response_500 = new FailureResponse("Error: description");
+            FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);
         }
 
-        Collection<GameResponseData> games;
+        Collection<GameResult> games;
 
         try {
             games = service.listGames(authToken);
         } catch (DataAccessException e){
             res.status(401);
-            FailureResponse fail_response = new FailureResponse("Error: unauthorized");
+            FailureResult fail_response = new FailureResult("Error: unauthorized");
             return new Gson().toJson(fail_response);
         }
 
         res.status(200);
-        return new Gson().toJson(new ListGameResponse(games));
+        return new Gson().toJson(new ListGameResult(games));
     }
 }
