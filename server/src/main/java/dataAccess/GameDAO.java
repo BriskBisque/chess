@@ -6,7 +6,7 @@ import model.ObserversData;
 import java.util.Collection;
 
 public interface GameDAO {
-    public void clear();
+    public void clear() throws DataAccessException;
     public void insertGame(GameData game);
     public GameData getGame(int gameID) throws DataAccessException;
     public Collection<GameData> listGames();

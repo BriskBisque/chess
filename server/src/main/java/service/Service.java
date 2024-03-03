@@ -6,6 +6,7 @@ import model.JoinGameData;
 import model.LoginData;
 import model.UserData;
 import model.GameResult;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,13 +14,13 @@ import java.util.Objects;
 
 public class Service {
     private static Service instance;
-    private final AuthDAO authDao = MemoryAuthDAO.getInstance();
-    private final UserDAO userDao = MemoryUserDAO.getInstance();
-    private final GameDAO gameDao = MemoryGameDAO.getInstance();
+    private final AuthDAO authDao = SQLAuthDAO.getInstance();
+    private final UserDAO userDao = SQLUserDAO.getInstance();
+    private final GameDAO gameDao = SQLGameDAO.getInstance();
 
-    public Service(){}
+    public Service() throws DataAccessException {}
 
-    public static synchronized Service getInstance(){
+    public static synchronized Service getInstance() throws DataAccessException {
         if (instance == null){
             return new Service();
         } else {
@@ -48,21 +49,30 @@ public class Service {
     }
 
     public String login(LoginData loginData) throws DataAccessException{
-        String databasePassword = userDao.selectPassword(loginData.username());
-        if (loginData.password().equals(databasePassword)){
-            return authDao.createAuth(loginData.username());
+        String hashedPassword = userDao.selectPassword(loginData.username());
+        if (verifyUser(loginData.password(), hashedPassword)){
+            return authDao.getAuth(loginData.username());
         } else {
             throw new DataAccessException("Error: unauthorized");
         }
     }
 
-    public void logout(String authToken) throws DataAccessException {
-        authDao.deleteAuth(authToken);
+    private boolean verifyUser(String providedClearTextPassword, String hashedPassword){
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.matches(providedClearTextPassword, hashedPassword);
     }
 
-    public void testAuth(String authToken) throws DataAccessException{
-        if (authDao.getAuth(authToken) == null){
-            throw new DataAccessException("Error: unathorized");
+    public void logout(String authToken) throws DataAccessException {
+        if (authDao.authExists(authToken)) {
+            authDao.deleteAuth(authToken);
+        } else {
+            throw new DataAccessException("Error: unauthorized");
+        }
+    }
+
+    public void testAuth(String authToken) throws DataAccessException {
+        if (!authDao.authExists(authToken)) {
+            throw new DataAccessException("Error: unauthorized");
         }
     }
 
@@ -99,7 +109,9 @@ public class Service {
     }
 
     public Collection<GameResult> listGames(String authToken) throws DataAccessException {
-        testAuth(authToken);
+        if (!authDao.authExists(authToken)){
+            throw new DataAccessException("Error: unauthorized");
+        }
         Collection<GameData> games = gameDao.listGames();
         Collection<GameResult> resultGames = new ArrayList<>();
         GameResult toAdd;

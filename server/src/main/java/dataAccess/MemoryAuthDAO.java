@@ -31,14 +31,19 @@ public class MemoryAuthDAO implements AuthDAO{
         auths = new ArrayList<>();
     }
 
+    @Override
+    public boolean authExists(String authToken) throws DataAccessException {
+        return false;
+    }
+
     public void insertAuth(AuthData authToken){
         auths.add(authToken);
     }
 
-    public AuthData getAuth(String authToken){
+    public String getAuth(String authToken){
         for (AuthData auth: auths){
             if (auth.authToken().equals(authToken)){
-                return auth;
+                return auth.authToken();
             }
         }
         return null;

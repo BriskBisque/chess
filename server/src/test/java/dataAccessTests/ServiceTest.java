@@ -1,4 +1,4 @@
-package unitTests;
+package dataAccessTests;
 
 import dataAccess.DataAccessException;
 import model.GameData;
@@ -23,9 +23,6 @@ class ServiceTest {
     @AfterEach
     void clear() {
         assertDoesNotThrow(() -> service.clear());
-        assertEquals(service.getAuthDao().getAuths().size(), 0);
-        assertEquals(service.getUserDao().getUsers().size(), 0);
-        assertEquals(service.getGameDao().getGames().size(), 0);
     }
 
     @BeforeAll

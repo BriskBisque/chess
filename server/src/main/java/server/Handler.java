@@ -16,9 +16,9 @@ public class Handler {
     private final Service service = Service.getInstance();
     private static Handler instance;
 
-    public Handler() {}
+    public Handler() throws DataAccessException {}
 
-    public static synchronized Handler getInstance(){
+    public static synchronized Handler getInstance() throws DataAccessException {
         if (instance == null){
             return new Handler();
         }
