@@ -1,5 +1,7 @@
 package dataAccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 import model.ObserversData;
 
@@ -43,12 +45,29 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void insertGame(GameData game) {
-
+    public GameData insertGame(GameData game) throws DataAccessException {
+        var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        String gameJson = new Gson().toJson(game.game());
+        var id = DatabaseManager.executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
+        return new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameData FROM game WHERE gameID=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gameData");
+                        return new Gson().fromJson(json, GameData.class);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
@@ -63,8 +82,9 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData createGame(String gameName) {
-        return null;
+    public GameData createGame(String gameName) throws DataAccessException {
+        GameData newGame = new GameData(0, null, null, gameName, new ChessGame());
+        return insertGame(newGame);
     }
 
     @Override

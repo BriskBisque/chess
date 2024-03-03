@@ -40,8 +40,9 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void insertGame(GameData game){
+    public GameData insertGame(GameData game){
         games.add(game);
+        return game;
     }
 
     @Override
