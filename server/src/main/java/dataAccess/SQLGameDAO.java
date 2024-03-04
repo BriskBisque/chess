@@ -3,13 +3,11 @@ package dataAccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
+import model.GameResult;
 import model.ObserversData;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class SQLGameDAO implements GameDAO{
 
@@ -25,7 +23,7 @@ public class SQLGameDAO implements GameDAO{
     public SQLGameDAO() throws DataAccessException {
         String[] createStatements = {
                 """
-            CREATE TABLE IF NOT EXISTS  game (
+            CREATE TABLE IF NOT EXISTS  games (
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` TEXT DEFAULT NULL,
               `blackUsername` TEXT DEFAULT NULL,
@@ -40,13 +38,13 @@ public class SQLGameDAO implements GameDAO{
     }
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE game";
+        var statement = "TRUNCATE games";
         DatabaseManager.executeUpdate(statement);
     }
 
     @Override
     public GameData insertGame(GameData game) throws DataAccessException {
-        var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String gameJson = new Gson().toJson(game.game());
         var id = DatabaseManager.executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
         return new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
@@ -55,12 +53,12 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameData FROM game WHERE gameID=?";
+            var statement = "SELECT game FROM games WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        var json = rs.getString("gameData");
+                        var json = rs.getString("game");
                         return new Gson().fromJson(json, GameData.class);
                     }
                 }
@@ -72,8 +70,25 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public Collection<GameData> listGames() {
-        return null;
+    public Collection<GameResult> listGames() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    Collection<GameResult> games = new ArrayList<>();
+                    while (rs.next()) {
+                        int gameID = rs.getInt("gameID");
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+                        String gameName = rs.getString("gameName");
+                        games.add(new GameResult(gameID, whiteUsername, blackUsername, gameName));
+                    }
+                    return games;
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     @Override
@@ -101,54 +116,4 @@ public class SQLGameDAO implements GameDAO{
     public Collection<ObserversData> getObserversData() {
         return null;
     }
-
-//    private final String[] createStatements = {
-//            """
-//            CREATE TABLE IF NOT EXISTS  game (
-//              `gameID` int NOT NULL AUTO_INCREMENT,
-//              `whiteUsername` TEXT NOT NULL,
-//              'blackUsername' TEXT NOT NULL,
-//              'gameName' TEXT NOT NULL,
-//              `game` TEXT DEFAULT NULL,
-//              PRIMARY KEY (`gameID`),
-//              INDEX(gameName)
-//            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-//            """
-//    };
-//
-//    static int executeUpdate(String statement, Object... params) throws DataAccessException {
-//        try (var conn = DatabaseManager.getConnection()) {
-//            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-//                for (var i = 0; i < params.length; i++) {
-//                    var param = params[i];
-//                    if (param instanceof String p) ps.setString(i + 1, p);
-//                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-//                    else if (param == null) ps.setNull(i + 1, NULL);
-//                }
-//                ps.executeUpdate();
-//
-//                var rs = ps.getGeneratedKeys();
-//                if (rs.next()) {
-//                    return rs.getInt(1);
-//                }
-//
-//                return 0;
-//            }
-//        } catch (SQLException e) {
-//            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-//        }
-//    }
-//
-//    void configureDatabase() throws DataAccessException {
-//        DatabaseManager.createDatabase();
-//        try (var conn = DatabaseManager.getConnection()) {
-//            for (var statement : createStatements) {
-//                try (var preparedStatement = conn.prepareStatement(statement)) {
-//                    preparedStatement.executeUpdate();
-//                }
-//            }
-//        } catch (Exception ex) {
-//            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-//        }
-//    }
 }

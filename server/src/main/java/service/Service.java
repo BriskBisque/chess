@@ -1,11 +1,7 @@
 package service;
 
 import dataAccess.*;
-import model.GameData;
-import model.JoinGameData;
-import model.LoginData;
-import model.UserData;
-import model.GameResult;
+import model.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
@@ -112,14 +108,7 @@ public class Service {
         if (!authDao.authExists(authToken)){
             throw new DataAccessException("Error: unauthorized");
         }
-        Collection<GameData> games = gameDao.listGames();
-        Collection<GameResult> resultGames = new ArrayList<>();
-        GameResult toAdd;
-        for (GameData game: games){
-            toAdd = new GameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
-            resultGames.add(toAdd);
-        }
-        return resultGames;
+        return gameDao.listGames();
     }
 
     public AuthDAO getAuthDao() {

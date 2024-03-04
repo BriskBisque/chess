@@ -1,14 +1,10 @@
 package dataAccessTests;
 
 import dataAccess.DataAccessException;
-import model.GameData;
-import model.JoinGameData;
-import model.LoginData;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import model.GameResult;
 import service.Service;
 
 import java.util.ArrayList;

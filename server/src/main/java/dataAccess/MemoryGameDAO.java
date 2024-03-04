@@ -2,8 +2,8 @@ package dataAccess;
 
 import chess.ChessGame;
 import model.GameData;
+import model.GameResult;
 import model.ObserversData;
-import model.UserData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,8 +66,8 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public Collection<GameData> listGames(){
-        return games;
+    public Collection<GameResult> listGames(){
+        return null;
     }
 
     @Override
