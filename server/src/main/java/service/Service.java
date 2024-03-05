@@ -28,7 +28,9 @@ public class Service {
         UserData databaseUser = userDao.getUser(user);
         if (databaseUser == null) {
             userDao.insertUser(user);
-            return authDao.createAuth(user.username());
+            AuthData auth = authDao.createAuth(user.username());
+            authDao.insertAuth(auth);
+            return auth.authToken();
         } else {
             throw new DataAccessException("Error: already taken");
         }
@@ -47,7 +49,9 @@ public class Service {
     public String login(LoginData loginData) throws DataAccessException{
         String hashedPassword = userDao.selectPassword(loginData.username());
         if (verifyUser(loginData.password(), hashedPassword)){
-            return authDao.getAuth(loginData.username());
+            AuthData auth = authDao.createAuth(loginData.username());
+            authDao.updateAuth(auth);
+            return auth.authToken();
         } else {
             throw new DataAccessException("Error: unauthorized");
         }
@@ -86,19 +90,19 @@ public class Service {
         if (Objects.equals(gameReqData.playerColor(), "BLACK")) {
             if (game.blackUsername() == null) {
                 game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-                gameDao.updateGame(game);
+                gameDao.updateGame(game, "BLACK");
             } else {
                 throw new DataAccessException("Error: already taken");
             }
         } else if (Objects.equals(gameReqData.playerColor(), "WHITE")) {
             if (game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-                gameDao.updateGame(game);
+                gameDao.updateGame(game, "WHITE");
             } else {
                 throw new DataAccessException("Error: already taken");
             }
         } else if (Objects.equals(gameReqData.playerColor(), null)) {
-            gameDao.addObserver(game, authToken);
+            // to do in phase 6
         } else {
             throw new DataAccessException("Error: already taken");
         }
@@ -121,5 +125,9 @@ public class Service {
 
     public GameDAO getGameDao() {
         return gameDao;
+    }
+
+    public void destroy() throws DataAccessException {
+        gameDao.destroy();
     }
 }

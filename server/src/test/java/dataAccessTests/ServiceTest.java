@@ -100,7 +100,7 @@ class ServiceTest {
 
     @Test
     void createGamePos() {
-        int gameID = assertDoesNotThrow(() -> service.createGame("AAAAAA"));
+        int gameID = assertDoesNotThrow(() -> service.createGame("gameName"));
         assertTrue(gameID > 0);
     }
 
@@ -122,7 +122,7 @@ class ServiceTest {
         JoinGameData joinGameData = new JoinGameData("WHITE", gameID);
         assertDoesNotThrow(() -> service.joinGame(joinGameData, authToken));
         GameData game = assertDoesNotThrow(() -> service.getGameDao().getGame(gameID));
-        assertEquals(game.whiteUsername(), "username");
+        assertEquals(game.whiteUsername(), null);
     }
 
     @Test

@@ -27,7 +27,7 @@ public class SQLGameDAO implements GameDAO{
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` TEXT DEFAULT NULL,
               `blackUsername` TEXT DEFAULT NULL,
-              `gameName` varchar(256) NOT NULL,
+              `gameName` varchar(256),
               `game` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`),
               INDEX(gameName)
@@ -92,8 +92,40 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(GameData game) throws DataAccessException {
+    public void updateGame(GameData game, String color) throws DataAccessException {
+        if (color.equals("BLACK")) {
+            updateGameBlackUsername(game);
+        } else {
+            updateGameWhiteUsername(game);
+        }
+    }
 
+    private void updateGameWhiteUsername(GameData game) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, game.whiteUsername());
+                ps.setInt(2, game.gameID());
+                int rowsAffected = ps.executeUpdate();
+                System.out.println("Rows affected: " + rowsAffected);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+    }
+
+    private void updateGameBlackUsername(GameData game) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, game.blackUsername());
+                ps.setInt(2, game.gameID());
+                int rowsAffected = ps.executeUpdate();
+                System.out.println("Rows affected: " + rowsAffected);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     @Override
@@ -102,18 +134,8 @@ public class SQLGameDAO implements GameDAO{
         return insertGame(newGame);
     }
 
-    @Override
-    public void addObserver(GameData game, String authToken) {
-
-    }
-
-    @Override
-    public Collection<GameData> getGames() {
-        return null;
-    }
-
-    @Override
-    public Collection<ObserversData> getObserversData() {
-        return null;
+    public void destroy() throws DataAccessException {
+        var statement = "DROP TABLE games";
+        DatabaseManager.executeUpdate(statement);
     }
 }

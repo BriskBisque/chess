@@ -1,15 +1,9 @@
 package dataAccess;
 
 import model.AuthData;
+import model.GameData;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class SQLAuthDAO implements AuthDAO{
 
@@ -84,11 +78,22 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public String createAuth(String username) throws DataAccessException {
+    public AuthData createAuth(String username){
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, username);
-        this.insertAuth(authData);
-        return authToken;
+        return new AuthData(authToken, username);
+    }
+
+    public void updateAuth(AuthData auth) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE auth SET authToken = ? WHERE username = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth.authToken());
+                ps.setString(2, auth.username());
+                int rowsAffected = ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     @Override
