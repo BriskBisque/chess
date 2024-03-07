@@ -25,7 +25,7 @@ public class Service {
     }
 
     public String register(UserData user) throws DataAccessException {
-        UserData databaseUser = userDao.getUser(user);
+        UserData databaseUser = userDao.getUser(user.username());
         if (databaseUser == null) {
             userDao.insertUser(user);
             AuthData auth = authDao.createAuth(user.username());
@@ -50,7 +50,7 @@ public class Service {
         String hashedPassword = userDao.selectPassword(loginData.username());
         if (verifyUser(loginData.password(), hashedPassword)){
             AuthData auth = authDao.createAuth(loginData.username());
-            authDao.updateAuth(auth);
+            authDao.insertAuth(auth);
             return auth.authToken();
         } else {
             throw new DataAccessException("Error: unauthorized");
@@ -125,9 +125,5 @@ public class Service {
 
     public GameDAO getGameDao() {
         return gameDao;
-    }
-
-    public void destroy() throws DataAccessException {
-        gameDao.destroy();
     }
 }

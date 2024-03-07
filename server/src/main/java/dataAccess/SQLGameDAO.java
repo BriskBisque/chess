@@ -27,7 +27,7 @@ public class SQLGameDAO implements GameDAO{
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` TEXT DEFAULT NULL,
               `blackUsername` TEXT DEFAULT NULL,
-              `gameName` varchar(256),
+              `gameName` varchar(256) UNIQUE,
               `game` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`),
               INDEX(gameName)
@@ -43,7 +43,8 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData insertGame(GameData game) throws DataAccessException {
+    public GameData createGame(String gameName) throws DataAccessException {
+        GameData game = new GameData(0, null, null, gameName, new ChessGame());
         var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String gameJson = new Gson().toJson(game.game());
         var id = DatabaseManager.executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
@@ -53,13 +54,17 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT game FROM games WHERE gameID=?";
+            var statement = "SELECT * FROM games WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        var json = rs.getString("game");
-                        return new Gson().fromJson(json, GameData.class);
+                        var gameJson = rs.getString("game");
+                        ChessGame game = new Gson().fromJson(gameJson, ChessGame.class);
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
                     }
                 }
             }
@@ -93,49 +98,26 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public void updateGame(GameData game, String color) throws DataAccessException {
+        String blankUsername;
+        String username;
         if (color.equals("BLACK")) {
-            updateGameBlackUsername(game);
+            blankUsername = "blackUsername";
+            username = game.blackUsername();
+        } else if (color.equals("WHITE")) {
+            blankUsername = "whiteUsername";
+            username = game.whiteUsername();
         } else {
-            updateGameWhiteUsername(game);
+            throw new DataAccessException("Bad color");
         }
-    }
-
-    private void updateGameWhiteUsername(GameData game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+            var statement = "UPDATE games SET " + blankUsername + " = ? WHERE gameID = ?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, game.whiteUsername());
+                ps.setString(1, username);
                 ps.setInt(2, game.gameID());
                 int rowsAffected = ps.executeUpdate();
-                System.out.println("Rows affected: " + rowsAffected);
             }
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
-    }
-
-    private void updateGameBlackUsername(GameData game) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, game.blackUsername());
-                ps.setInt(2, game.gameID());
-                int rowsAffected = ps.executeUpdate();
-                System.out.println("Rows affected: " + rowsAffected);
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
-        }
-    }
-
-    @Override
-    public GameData createGame(String gameName) throws DataAccessException {
-        GameData newGame = new GameData(0, null, null, gameName, new ChessGame());
-        return insertGame(newGame);
-    }
-
-    public void destroy() throws DataAccessException {
-        var statement = "DROP TABLE games";
-        DatabaseManager.executeUpdate(statement);
     }
 }

@@ -12,5 +12,4 @@ public interface AuthDAO {
     public void clear() throws DataAccessException;
     public boolean authExists(String authToken) throws DataAccessException;
     public String getUser(String authToken) throws DataAccessException;
-    public void updateAuth(AuthData auth) throws DataAccessException;
 }

@@ -1,11 +1,10 @@
-package dataAccessTests;
+package service;
 
 import dataAccess.DataAccessException;
 import model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -122,7 +121,7 @@ class ServiceTest {
         JoinGameData joinGameData = new JoinGameData("WHITE", gameID);
         assertDoesNotThrow(() -> service.joinGame(joinGameData, authToken));
         GameData game = assertDoesNotThrow(() -> service.getGameDao().getGame(gameID));
-        assertEquals(game.whiteUsername(), null);
+        assertEquals("username", game.whiteUsername());
     }
 
     @Test
@@ -156,7 +155,7 @@ class ServiceTest {
         GameResult game = new GameResult(gameID, "username", null, "AAAAAA");
         expectedList.add(game);
 
-        assertEquals(gameList, expectedList);
+        assertEquals(expectedList, gameList);
     }
 
     @Test

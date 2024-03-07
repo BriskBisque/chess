@@ -73,27 +73,18 @@ public class SQLAuthDAO implements AuthDAO{
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        var statement = "DELETE FROM auth WHERE authToken=?";
-        DatabaseManager.executeUpdate(statement, authToken);
+        if (authExists(authToken)) {
+            var statement = "DELETE FROM auth WHERE authToken=?";
+            DatabaseManager.executeUpdate(statement, authToken);
+        } else {
+            throw new DataAccessException("auth doesn't exist");
+        }
     }
 
     @Override
     public AuthData createAuth(String username){
         String authToken = UUID.randomUUID().toString();
         return new AuthData(authToken, username);
-    }
-
-    public void updateAuth(AuthData auth) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE auth SET authToken = ? WHERE username = ?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, auth.authToken());
-                ps.setString(2, auth.username());
-                int rowsAffected = ps.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
-        }
     }
 
     @Override
@@ -104,6 +95,19 @@ public class SQLAuthDAO implements AuthDAO{
 
     @Override
     public String getUser(String authToken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM auth WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("username");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 }

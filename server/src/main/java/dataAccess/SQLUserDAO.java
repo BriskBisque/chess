@@ -37,25 +37,27 @@ public class SQLUserDAO implements UserDAO{
 
     @Override
     public void insertUser(UserData user) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        String passwordHash = encryptPassword(user.password());
-        var id = DatabaseManager.executeUpdate(statement, user.username(), passwordHash, user.email());
-    }
-
-    private String encryptPassword(String clearTextPassword){
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.encode(clearTextPassword);
+        try {
+            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String passwordHash = encoder.encode(user.password());
+            var id = DatabaseManager.executeUpdate(statement, user.username(), passwordHash, user.email());
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     @Override
-    public UserData getUser(UserData user) throws DataAccessException {
+    public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM user WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, user.username());
+                ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readUser(rs);
+                        var password = rs.getString("password");
+                        var email = rs.getString("email");
+                        return new UserData(username, password, email);
                     }
                 }
             }
@@ -63,13 +65,6 @@ public class SQLUserDAO implements UserDAO{
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
-    }
-
-    private UserData readUser(ResultSet rs) throws SQLException {
-        var username = rs.getString("username");
-        var password = rs.getString("password");
-        var email = rs.getString("email");
-        return new UserData(username, password, email);
     }
 
     @Override
@@ -81,23 +76,18 @@ public class SQLUserDAO implements UserDAO{
     @Override
     public String selectPassword(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            var statement = "SELECT password FROM user WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readUser(rs).password();
+                        return rs.getString("password");
                     }
                 }
             }
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
-        return null;
-    }
-
-    @Override
-    public Collection<UserData> getUsers() {
         return null;
     }
 }

@@ -1,6 +1,8 @@
 import chess.*;
 
 import dataAccess.DataAccessException;
+import dataAccess.GameDAO;
+import dataAccess.SQLGameDAO;
 import server.Server;
 import service.Service;
 
@@ -10,5 +12,7 @@ public class Main {
         System.out.println("♕ 240 Chess Server: " + piece);
         Server server = new Server();
         server.run(0);
+//        GameDAO gameDAO = SQLGameDAO.getInstance();
+//        gameDAO.destroy();
     }
 }
