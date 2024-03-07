@@ -1,4 +1,4 @@
-package dataAccess;
+package dataAccessTests;
 
 import chess.ChessGame;
 import dataAccess.DataAccessException;
@@ -6,11 +6,9 @@ import dataAccess.GameDAO;
 import dataAccess.SQLGameDAO;
 import model.GameData;
 import model.GameResult;
-import model.ListGameResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +38,7 @@ public class SQLGameDAOTests {
     @Test
     void createGameNeg(){
         assertThrows(DataAccessException.class, () -> {
-            gameDao.createGame("AAAAA");
-            gameDao.createGame("AAAAA");
+            assertNull(gameDao.createGame(""));
         });
     }
 

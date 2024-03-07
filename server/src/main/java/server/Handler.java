@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
 import model.*;
-import service.Service;
+import serviceTests.Service;
 import spark.Request;
 import spark.Response;
 
@@ -112,7 +112,7 @@ public class Handler {
         String gameName = null;
         try {
             authToken = req.headers("authorization");
-            gameName = req.queryParams("gameName");
+            gameName = (new Gson().fromJson(req.body(), GameNameResponse.class)).gameName();
         } catch(JsonSyntaxException e) {
             FailureResult response_500 = new FailureResult("Error: description");
             return new Gson().toJson(response_500);

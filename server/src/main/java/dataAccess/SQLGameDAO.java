@@ -4,7 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import model.GameResult;
-import model.ObserversData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +26,9 @@ public class SQLGameDAO implements GameDAO{
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` TEXT DEFAULT NULL,
               `blackUsername` TEXT DEFAULT NULL,
-              `gameName` varchar(256) UNIQUE,
+              `gameName` TEXT DEFAULT NULL CHECK (`gameName` <> ''),
               `game` TEXT DEFAULT NULL,
-              PRIMARY KEY (`gameID`),
-              INDEX(gameName)
+              PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
@@ -119,5 +117,10 @@ public class SQLGameDAO implements GameDAO{
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
+    }
+
+    public void destroy() throws DataAccessException {
+        var statement = "DROP TABLE games";
+        DatabaseManager.executeUpdate(statement);
     }
 }

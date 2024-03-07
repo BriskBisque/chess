@@ -1,4 +1,4 @@
-package service;
+package serviceTests;
 
 import dataAccess.DataAccessException;
 import model.*;
