@@ -31,7 +31,7 @@ public class SQLUserDAO implements UserDAO{
     @Override
     public void insertUser(UserData user) throws DataAccessException {
         try {
-            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             String passwordHash = encoder.encode(user.password());
             var id = DatabaseManager.executeUpdate(statement, user.username(), passwordHash, user.email());
@@ -43,7 +43,7 @@ public class SQLUserDAO implements UserDAO{
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
@@ -62,14 +62,14 @@ public class SQLUserDAO implements UserDAO{
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE user";
+        var statement = "TRUNCATE users";
         DatabaseManager.executeUpdate(statement);
     }
 
     @Override
     public String selectPassword(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT password FROM user WHERE username=?";
+            var statement = "SELECT password FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
