@@ -83,21 +83,43 @@ public class Client {
     }
 
     private void createGameUI() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please give a game name:");
+        String gameName = scanner.nextLine();
+
 
     }
 
     private void joinGameUI() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please give a game number:");
+        int gameID = scanner.nextInt();
+        System.out.println("Please give a team color (WHITE/BLACK):");
+        String gameColor = scanner.nextLine();
+
 
     }
 
     private void joinObserverUI() {
+        Scanner scanner = new Scanner(System.in);
 
+        System.out.println("Please give a game number:");
+        int gameID = scanner.nextInt();
     }
 
     private void listGamesUI(){
 
     }
     private void postLogHelpUI() {
-
+        System.out.println("Enter just the number of the option you want to pick. \n" +
+                "1. Creates a new game with the name given. \n" +
+                "2. Joins a game of the number given in the color specified. \n" +
+                "3. Joins a game of the number given as a non-player. \n" +
+                "4. Lists the games in the system, numbered by ID. \n" +
+                "5. Logs the user out. \n" +
+                "Anything else, you will get a help menu.");
+        prelogInput();
     }
 }
