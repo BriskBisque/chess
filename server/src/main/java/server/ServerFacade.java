@@ -15,92 +15,40 @@ import java.util.Collection;
 
 public class ServerFacade {
 
-    private final String serverUrl;
-
-    public ServerFacade(String url) {
-        serverUrl = url;
-    }
-
+    private final ClientCommunicator communicator = new ClientCommunicator();
 
     public UserData registerUser(UserData user) throws DataAccessException {
         var path = "/user";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return communicator.makeRequest("POST", path, user, null, UserData.class);
     }
 
     public UserData loginUser(LoginData loginData) throws DataAccessException {
         var path = "/session";
-        return this.makeRequest("POST", path, loginData, UserData.class);
+        return communicator.makeRequest("POST", path, loginData, null, UserData.class);
     }
 
     public void logoutUser(String authToken) throws DataAccessException {
         var path = "/session";
-        this.makeRequest("DELETE", path, authToken, null);
+        communicator.makeRequest("DELETE", path, null, authToken, null);
     }
 
     public void deleteAll() throws DataAccessException {
         var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+        communicator.makeRequest("DELETE", path, null, null, null);
     }
 
     public Collection<GameResult> listGames(String authToken) throws DataAccessException {
         var path = "/game";
-        return this.makeRequest("GET", path, authToken, ListGameResult.class).games();
+        return communicator.makeRequest("GET", path, null, authToken, ListGameResult.class).games();
     }
 
-    public int createGame(String authToken, String gameName){
+    public int createGame(String authToken, String gameName) throws DataAccessException {
         var path = "/game";
-        this.makeRequest("POST", path, )
+        return communicator.makeRequest("POST", path, gameName, authToken, int.class);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws DataAccessException {
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-
-            writeBody(request, http);
-            http.connect();
-            throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
-    }
-
-
-    private static void writeBody(Object request, HttpURLConnection http) throws IOException {
-        if (request != null) {
-            http.addRequestProperty("Content-Type", "application/json");
-            String reqData = new Gson().toJson(request);
-            try (OutputStream reqBody = http.getOutputStream()) {
-                reqBody.write(reqData.getBytes());
-            }
-        }
-    }
-
-    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, DataAccessException {
-        var status = http.getResponseCode();
-        if (!isSuccessful(status)) {
-            throw new DataAccessException("failure: " + status);
-        }
-    }
-
-    private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
-        T response = null;
-        if (http.getContentLength() < 0) {
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader reader = new InputStreamReader(respBody);
-                if (responseClass != null) {
-                    response = new Gson().fromJson(reader, responseClass);
-                }
-            }
-        }
-        return response;
-    }
-
-
-    private boolean isSuccessful(int status) {
-        return status / 100 == 2;
+    public void joinGame(String authToken, String playerColor) throws DataAccessException {
+        var path = "/game";
+        communicator.makeRequest("PUT", path, playerColor, authToken, null);
     }
 }

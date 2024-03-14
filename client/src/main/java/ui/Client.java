@@ -4,7 +4,13 @@ import java.util.Scanner;
 
 public class Client {
 
-    private Service service;
+    private ServerFacade server;
+
+    public Client(){
+        var url = "http://localhost:" + 0;
+        server = new ServerFacade(url);
+    }
+
     public void preLoginUI() {
         System.out.println("Enter a number: \n" +
                 "1. Register \n" +
