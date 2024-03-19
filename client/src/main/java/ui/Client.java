@@ -5,6 +5,7 @@ import model.*;
 import model.Results.GameResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
+import server.GameNameResponse;
 import server.Server;
 import server.ServerFacade;
 
@@ -140,7 +141,7 @@ public class Client {
         System.out.println("Please give a game name:");
         String gameName = scanner.nextLine();
 
-        int id = facade.createGame(userAuthToken, new GameNameData(gameName));
+        int id = facade.createGame(userAuthToken, new GameNameResponse(gameName));
         System.out.println("Game created with id" + id);
 
         postLoginUI();

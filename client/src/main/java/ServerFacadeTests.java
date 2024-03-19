@@ -1,5 +1,4 @@
 import dataAccess.DataAccessException;
-import model.GameNameData;
 import model.JoinGameData;
 import model.LoginData;
 import model.Results.GameResult;
@@ -9,6 +8,7 @@ import model.Results.UserResult;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import server.GameNameResponse;
 import server.Server;
 import server.ServerFacade;
 
@@ -84,14 +84,14 @@ public class ServerFacadeTests {
         UserData userData = new UserData("player1", "password", "p1@email.com");
         assertDoesNotThrow(() -> facade.registerUser(userData));
         UserResult authData = assertDoesNotThrow(() -> facade.loginUser(new LoginData(userData.username(), userData.password())));
-        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameData("game name")));
+        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameResponse("game name")));
         assertTrue(gameID >0);
     }
 
     @Test
     void createGameNeg(){
         assertThrows(DataAccessException.class, () -> {
-            int gameID = facade.createGame(null, new GameNameData("game name"));
+            int gameID = facade.createGame(null, new GameNameResponse("game name"));
         });
     }
 
@@ -100,7 +100,7 @@ public class ServerFacadeTests {
         UserData userData = new UserData("player1", "password", "p1@email.com");
         assertDoesNotThrow(() -> facade.registerUser(userData));
         UserResult authData = assertDoesNotThrow(() -> facade.loginUser(new LoginData(userData.username(), userData.password())));
-        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameData("game name")));
+        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameResponse("game name")));
         assertDoesNotThrow(() -> facade.joinGame(authData.authToken(), new JoinGameData("WHITE", gameID)));
     }
 
@@ -116,7 +116,7 @@ public class ServerFacadeTests {
         UserData userData = new UserData("player1", "password", "p1@email.com");
         assertDoesNotThrow(() -> facade.registerUser(userData));
         UserResult authData = assertDoesNotThrow(() -> facade.loginUser(new LoginData(userData.username(), userData.password())));
-        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameData("game name")));
+        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameResponse("game name")));
         assertDoesNotThrow(() -> facade.joinGame(authData.authToken(), new JoinGameData("WHITE", gameID)));
         ListGameResult gamesResult = assertDoesNotThrow(() -> facade.listGames(authData.authToken()));
         Collection<GameResult> games = gamesResult.games();

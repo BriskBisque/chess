@@ -39,7 +39,7 @@ public class ServerFacade {
         return communicator.makeRequest("GET", path, null, authToken, ListGameResult.class);
     }
 
-    public int createGame(String authToken, GameNameData gameName) throws DataAccessException {
+    public int createGame(String authToken, GameNameResponse gameName) throws DataAccessException {
         var path = "/game";
         return communicator.makeRequest("POST", path, gameName, authToken, GameIDResult.class).gameID();
     }
