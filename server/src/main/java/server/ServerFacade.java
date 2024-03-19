@@ -1,13 +1,10 @@
 package server;
 
-import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.*;
-import service.Service;
-
-import java.io.*;
-import java.net.*;
-import java.util.Collection;
+import model.Results.GameIDResult;
+import model.Results.ListGameResult;
+import model.Results.UserResult;
 
 public class ServerFacade {
 
@@ -42,9 +39,9 @@ public class ServerFacade {
         return communicator.makeRequest("GET", path, null, authToken, ListGameResult.class);
     }
 
-    public int createGame(String authToken, String gameName) throws DataAccessException {
+    public int createGame(String authToken, GameNameData gameName) throws DataAccessException {
         var path = "/game";
-        return communicator.makeRequest("POST", path, gameName, authToken, int.class);
+        return communicator.makeRequest("POST", path, gameName, authToken, GameIDResult.class).gameID();
     }
 
     public void joinGame(String authToken, JoinGameData joinGameData) throws DataAccessException {

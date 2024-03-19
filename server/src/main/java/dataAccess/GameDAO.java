@@ -1,7 +1,7 @@
 package dataAccess;
 
 import model.GameData;
-import model.GameResult;
+import model.Results.GameResult;
 
 import java.util.Collection;
 

@@ -1,4 +1,4 @@
-package model;
+package model.Results;
 
 public record Result(){
 }

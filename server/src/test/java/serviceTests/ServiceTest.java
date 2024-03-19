@@ -2,6 +2,7 @@ package serviceTests;
 
 import dataAccess.DataAccessException;
 import model.*;
+import model.Results.GameResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

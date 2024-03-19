@@ -2,6 +2,7 @@ package service;
 
 import dataAccess.*;
 import model.*;
+import model.Results.GameResult;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Collection;

@@ -37,7 +37,7 @@ public class ClientCommunicator {
 
 
     private static void writeBody(Object request, HttpURLConnection http, String authToken) throws IOException {
-        if (request != null) {
+        if (request != null || authToken != null) {
             http.addRequestProperty("Content-Type", "application/json");
             if (authToken != null) {
                 http.setRequestProperty("Authorization", authToken);

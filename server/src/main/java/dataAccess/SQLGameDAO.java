@@ -3,7 +3,7 @@ package dataAccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-import model.GameResult;
+import model.Results.GameResult;
 
 import java.util.ArrayList;
 import java.util.Collection;

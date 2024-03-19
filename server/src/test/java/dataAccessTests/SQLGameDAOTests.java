@@ -5,7 +5,7 @@ import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.SQLGameDAO;
 import model.GameData;
-import model.GameResult;
+import model.Results.GameResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -2,6 +2,9 @@ package ui;
 
 import dataAccess.DataAccessException;
 import model.*;
+import model.Results.GameResult;
+import model.Results.ListGameResult;
+import model.Results.UserResult;
 import server.Server;
 import server.ServerFacade;
 
@@ -41,9 +44,15 @@ public class Client {
         switch (userInput) {
             case 1 -> registerUI();
             case 2 -> loginUI();
-            case 3 -> System.out.println("quitted");
+            case 3 -> quit();
             default -> preLogHelpUI();
         }
+    }
+
+    private void quit() throws DataAccessException {
+        System.out.println("quitted");
+        facade.deleteAll();
+        System.exit(0);
     }
 
     private void registerUI() throws DataAccessException {
@@ -54,11 +63,16 @@ public class Client {
         System.out.println("Please give an email:");
         String email = scanner.nextLine();
 
-        facade.registerUser(new UserData(username, password, email));
-        UserResult user = facade.loginUser(new LoginData(username, password));
-        System.out.println("Logged in as: " + user.username());
-
-        userAuthToken = user.authToken();
+        try {
+            facade.registerUser(new UserData(username, password, email));
+            UserResult user = facade.loginUser(new LoginData(username, password));
+            System.out.println("Logged in as: " + user.username());
+            userAuthToken = user.authToken();
+        } catch (Exception e){
+            System.out.println("There was an issue with the user information given.");
+            preLoginUI();
+            return;
+        }
 
         postLoginUI();
     }
@@ -69,10 +83,15 @@ public class Client {
         System.out.println("Please give a password:");
         String password = scanner.nextLine();
 
-        UserResult user = facade.loginUser(new LoginData(username, password));
-        System.out.println("Logged in as: " + user.username());
-
-        userAuthToken = user.authToken();
+        try {
+            UserResult user = facade.loginUser(new LoginData(username, password));
+            System.out.println("Logged in as: " + user.username());
+            userAuthToken = user.authToken();
+        } catch (Exception E){
+            System.out.println("There was an issue with the user information given.");
+            preLoginUI();
+            return;
+        }
 
         postLoginUI();
     }
@@ -107,16 +126,21 @@ public class Client {
             case 2 -> joinGameUI();
             case 3 -> joinObserverUI();
             case 4 -> listGamesUI();
-            case 5 -> prelogInput();
+            case 5 -> logoutUI();
             default -> postLogHelpUI();
         }
+    }
+
+    private void logoutUI() throws DataAccessException {
+        facade.logoutUser(userAuthToken);
+        preLoginUI();
     }
 
     private void createGameUI() throws DataAccessException {
         System.out.println("Please give a game name:");
         String gameName = scanner.nextLine();
 
-        int id = facade.createGame(userAuthToken, gameName);
+        int id = facade.createGame(userAuthToken, new GameNameData(gameName));
         System.out.println("Game created with id" + id);
 
         postLoginUI();
@@ -124,7 +148,7 @@ public class Client {
 
     private void joinGameUI() throws DataAccessException {
         System.out.println("Please give a game number:");
-        int gameID = scanner.nextInt();
+        int gameID = Integer.parseInt(scanner.nextLine());
         System.out.println("Please give a team color (WHITE/BLACK):");
         String gameColor = scanner.nextLine();
 
