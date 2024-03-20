@@ -40,7 +40,7 @@ public class ClientCommunicator {
         if (request != null || authToken != null) {
             http.addRequestProperty("Content-Type", "application/json");
             if (authToken != null) {
-                http.setRequestProperty("Authorization", authToken);
+                http.setRequestProperty("authorization", authToken);
             }
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
