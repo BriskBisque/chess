@@ -1,4 +1,3 @@
-import server.ServerFacade;
 import ui.Board;
 import ui.Client;
 
@@ -8,8 +7,8 @@ public class Main {
         try {
 //            client.preLoginUI();
             Board.main(null);
-        } catch (Exception ignored){
-
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
     }
 }

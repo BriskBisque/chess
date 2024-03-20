@@ -27,7 +27,7 @@ public class Client {
         facade = new ServerFacade(url);
     }
 
-    public void preLoginUI() {
+    public void preLoginUI() throws DataAccessException {
         userAuthToken = null;
 
         System.out.println("""
@@ -40,7 +40,7 @@ public class Client {
         prelogInput();
     }
 
-    private void prelogInput() {
+    private void prelogInput() throws DataAccessException {
         int userInput = Integer.parseInt(scanner.nextLine());
         switch (userInput) {
             case 1 -> registerUI();
@@ -61,7 +61,7 @@ public class Client {
         System.exit(0);
     }
 
-    private void registerUI() {
+    private void registerUI() throws DataAccessException {
         System.out.println("Please give a username:");
         String username = scanner.nextLine();
         System.out.println("Please give a password:");
@@ -83,7 +83,7 @@ public class Client {
         postLoginUI();
     }
 
-    private void loginUI() {
+    private void loginUI() throws DataAccessException {
         System.out.println("Please give a username:");
         String username = scanner.nextLine();
         System.out.println("Please give a password:");
@@ -102,7 +102,7 @@ public class Client {
         postLoginUI();
     }
 
-    private void preLogHelpUI() {
+    private void preLogHelpUI() throws DataAccessException {
         System.out.println("""
                 Enter just the number of the option you want to pick.\s
                 1. Register will register you as a user.\s
@@ -112,7 +112,7 @@ public class Client {
         prelogInput();
     }
 
-    public void postLoginUI() {
+    public void postLoginUI() throws DataAccessException {
         System.out.println("""
                 Enter a number:\s
                 1. Create Game\s
@@ -125,7 +125,7 @@ public class Client {
         postLogInput();
     }
 
-    private void postLogInput() {
+    private void postLogInput() throws DataAccessException {
         int userInput = Integer.parseInt(scanner.nextLine());
         switch (userInput) {
             case 1 -> createGameUI();
@@ -137,7 +137,7 @@ public class Client {
         }
     }
 
-    private void logoutUI() {
+    private void logoutUI() throws DataAccessException {
         try {
             facade.logoutUser(userAuthToken);
         } catch (Exception e){
@@ -147,7 +147,8 @@ public class Client {
         preLoginUI();
     }
 
-    private void createGameUI() {
+    private void createGameUI() throws DataAccessException {
+        assertSignedIn();
         System.out.println("Please give a game name:");
         String gameName = scanner.nextLine();
 
@@ -161,7 +162,8 @@ public class Client {
         postLoginUI();
     }
 
-    private void joinGameUI() {
+    private void joinGameUI() throws DataAccessException {
+        assertSignedIn();
         System.out.println("Please give a game number:");
         int gameID = Integer.parseInt(scanner.nextLine());
         System.out.println("Please give a team color (WHITE/BLACK):");
@@ -178,7 +180,8 @@ public class Client {
         postLoginUI();
     }
 
-    private void joinObserverUI() {
+    private void joinObserverUI() throws DataAccessException {
+        assertSignedIn();
         System.out.println("Please give a game number:");
         int gameID = scanner.nextInt();
 
@@ -193,7 +196,8 @@ public class Client {
         postLoginUI();
     }
 
-    private void listGamesUI() {
+    private void listGamesUI() throws DataAccessException {
+        assertSignedIn();
         try {
             ListGameResult gameResult = facade.listGames(userAuthToken);
             Collection<GameResult> games = gameResult.games();
@@ -210,7 +214,7 @@ public class Client {
         postLoginUI();
     }
 
-    private void postLogHelpUI() {
+    private void postLogHelpUI() throws DataAccessException {
         System.out.println("""
                 Enter just the number of the option you want to pick.\s
                 1. Creates a new game with the name given.\s
@@ -220,5 +224,11 @@ public class Client {
                 5. Logs the user out.\s
                 Anything else, you will get a help menu.""");
         prelogInput();
+    }
+
+    private void assertSignedIn() throws DataAccessException {
+        if (userAuthToken == null) {
+            throw new DataAccessException("You must sign in");
+        }
     }
 }
