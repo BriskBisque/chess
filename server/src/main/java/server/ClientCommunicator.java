@@ -24,7 +24,6 @@ public class ClientCommunicator {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
 
             writeBody(request, http, authToken);
             http.connect();
@@ -37,11 +36,12 @@ public class ClientCommunicator {
 
 
     private static void writeBody(Object request, HttpURLConnection http, String authToken) throws IOException {
-        if (request != null || authToken != null) {
+        if (authToken != null) {
+            http.setRequestProperty("authorization", authToken);
+        }
+        if (request != null) {
+            http.setDoOutput(true);
             http.addRequestProperty("Content-Type", "application/json");
-            if (authToken != null) {
-                http.setRequestProperty("authorization", authToken);
-            }
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());

@@ -27,7 +27,7 @@ public class Client {
         facade = new ServerFacade(url);
     }
 
-    public void preLoginUI() throws DataAccessException {
+    public void preLoginUI() {
         userAuthToken = null;
 
         System.out.println("""
@@ -40,7 +40,7 @@ public class Client {
         prelogInput();
     }
 
-    private void prelogInput() throws DataAccessException {
+    private void prelogInput() {
         int userInput = Integer.parseInt(scanner.nextLine());
         switch (userInput) {
             case 1 -> registerUI();
@@ -50,13 +50,18 @@ public class Client {
         }
     }
 
-    private void quit() throws DataAccessException {
+    private void quit() {
         System.out.println("quitted");
-        facade.deleteAll();
+        try {
+            facade.deleteAll();
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
+            return;
+        }
         System.exit(0);
     }
 
-    private void registerUI() throws DataAccessException {
+    private void registerUI() {
         System.out.println("Please give a username:");
         String username = scanner.nextLine();
         System.out.println("Please give a password:");
@@ -78,7 +83,7 @@ public class Client {
         postLoginUI();
     }
 
-    private void loginUI() throws DataAccessException {
+    private void loginUI() {
         System.out.println("Please give a username:");
         String username = scanner.nextLine();
         System.out.println("Please give a password:");
@@ -97,7 +102,7 @@ public class Client {
         postLoginUI();
     }
 
-    private void preLogHelpUI() throws DataAccessException {
+    private void preLogHelpUI() {
         System.out.println("""
                 Enter just the number of the option you want to pick.\s
                 1. Register will register you as a user.\s
@@ -107,7 +112,7 @@ public class Client {
         prelogInput();
     }
 
-    public void postLoginUI() throws DataAccessException {
+    public void postLoginUI() {
         System.out.println("""
                 Enter a number:\s
                 1. Create Game\s
@@ -120,7 +125,7 @@ public class Client {
         postLogInput();
     }
 
-    private void postLogInput() throws DataAccessException {
+    private void postLogInput() {
         int userInput = Integer.parseInt(scanner.nextLine());
         switch (userInput) {
             case 1 -> createGameUI();
@@ -132,53 +137,80 @@ public class Client {
         }
     }
 
-    private void logoutUI() throws DataAccessException {
-        facade.logoutUser(userAuthToken);
+    private void logoutUI() {
+        try {
+            facade.logoutUser(userAuthToken);
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
+            return;
+        }
         preLoginUI();
     }
 
-    private void createGameUI() throws DataAccessException {
+    private void createGameUI() {
         System.out.println("Please give a game name:");
         String gameName = scanner.nextLine();
 
-        int id = facade.createGame(userAuthToken, new GameNameResponse(gameName));
-        System.out.println("Game created with id" + id);
-
-        postLoginUI();
-    }
-
-    private void joinGameUI() throws DataAccessException {
-        System.out.println("Please give a game number:");
-        int gameID = Integer.parseInt(scanner.nextLine());
-        System.out.println("Please give a team color (WHITE/BLACK):");
-        String gameColor = scanner.nextLine();
-
-        facade.joinGame(userAuthToken, new JoinGameData(gameColor, gameID));
-
-        postLoginUI();
-    }
-
-    private void joinObserverUI() throws DataAccessException {
-        System.out.println("Please give a game number:");
-        int gameID = scanner.nextInt();
-
-        facade.joinGame(userAuthToken, new JoinGameData(null, gameID));
-
-        postLoginUI();
-    }
-
-    private void listGamesUI() throws DataAccessException {
-        ListGameResult gameResult = facade.listGames(userAuthToken);
-        Collection<GameResult> games = gameResult.games();
-
-        for (GameResult game: games){
-            System.out.printf("%d. %s, White Player = %s, Black Player = %s", game.gameID(), game.gameName(), game.whiteUsername(), game.blackUsername());
+        try {
+            int id = facade.createGame(userAuthToken, new GameNameResponse(gameName));
+            System.out.println("Game created with id" + id);
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
         }
 
         postLoginUI();
     }
 
-    private void postLogHelpUI() throws DataAccessException {
+    private void joinGameUI() {
+        System.out.println("Please give a game number:");
+        int gameID = Integer.parseInt(scanner.nextLine());
+        System.out.println("Please give a team color (WHITE/BLACK):");
+        String gameColor = scanner.nextLine();
+
+        try {
+            facade.joinGame(userAuthToken, new JoinGameData(gameColor, gameID));
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
+        }
+
+        Board.main(null);
+
+        postLoginUI();
+    }
+
+    private void joinObserverUI() {
+        System.out.println("Please give a game number:");
+        int gameID = scanner.nextInt();
+
+        try {
+            facade.joinGame(userAuthToken, new JoinGameData(null, gameID));
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
+        }
+
+        Board.main(null);
+
+        postLoginUI();
+    }
+
+    private void listGamesUI() {
+        try {
+            ListGameResult gameResult = facade.listGames(userAuthToken);
+            Collection<GameResult> games = gameResult.games();
+
+            int i = 1;
+            for (GameResult game : games) {
+                System.out.printf("%d. Name = %s, ID = %d White Player = %s, Black Player = %s", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername());
+                i++;
+            }
+        } catch (Exception e){
+            System.out.println("An error has occured. Please contact support for assistance.");
+        }
+
+        postLoginUI();
+    }
+
+    private void postLogHelpUI() {
         System.out.println("""
                 Enter just the number of the option you want to pick.\s
                 1. Creates a new game with the name given.\s
