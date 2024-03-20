@@ -120,4 +120,15 @@ public class ServerFacadeTests {
         Collection<GameResult> games = gamesResult.games();
         assert !games.isEmpty() : "No games in server";
     }
+
+    @Test
+    void deleteAllPos(){
+        assertDoesNotThrow(() -> facade.registerUser(new UserData("user", "password", "p1@email.com")));
+        UserResult authData = assertDoesNotThrow(() -> facade.loginUser(new LoginData("user", "password")));
+        int gameID = assertDoesNotThrow(() -> facade.createGame(authData.authToken(), new GameNameResponse("aaaaaaaaaaaaa")));
+        assertDoesNotThrow(() -> facade.deleteAll());
+        assertThrows(DataAccessException.class, () -> {
+            facade.createGame(authData.authToken(), new GameNameResponse("aaaaaaaaaaaaa"));
+        });
+    }
 }
