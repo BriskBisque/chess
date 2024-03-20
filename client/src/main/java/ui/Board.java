@@ -8,10 +8,10 @@ import static ui.EscapeSequences.*;
 
 public class Board {
 
-    private static final int BOARD_SIZE_IN_SQUARES = 3;
-    private static final int SQUARE_SIZE_IN_CHARS = 3;
+    private static final int BOARD_SIZE_IN_SQUARES = 8;
+    private static final int SQUARE_SIZE_IN_CHARS = 1;
     private static final int LINE_WIDTH_IN_CHARS = 1;
-    private static final String[] boarder_letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    private static final String[] boarder_letters = {" ", "a", "b", "c", "d", "e", "f", "g", "h", " "};
     private static Random rand = new Random();
 
 
@@ -21,8 +21,8 @@ public class Board {
         out.print(ERASE_SCREEN);
 
         drawVerticalBoarders(out);
-
         drawBoard(out);
+        drawVerticalBoarders(out);
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -66,11 +66,6 @@ public class Board {
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
             drawRowOfSquares(out);
-
-            if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                drawVerticalLine(out);
-                setBlack(out);
-            }
         }
     }
 
