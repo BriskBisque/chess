@@ -1,3 +1,5 @@
+package clientTests;
+
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.JoinGameData;

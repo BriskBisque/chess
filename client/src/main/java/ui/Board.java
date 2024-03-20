@@ -16,8 +16,8 @@ public class Board {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_CHARS = 1;
     private static final int LINE_WIDTH_IN_CHARS = 1;
-    private static final String[] boarder_letters = {"   ", "a", "b", "c", "d", "e", "f", "g", "h"};
-    private static final String[] boarder_spacing = {"", "    ", "    ", "    ", "   ", "    ", "   ", "    "};
+    private static final String[] boarder_letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    private static final String[] boarder_spacing = {"   ", "    ", "    ", "    ", "   ", "    ", "   ", "    "};
     private static Random rand = new Random();
     private static ChessGame chessGame = new ChessGame();
 
@@ -27,6 +27,10 @@ public class Board {
         setupBoard();
 
         out.print(ERASE_SCREEN);
+
+        drawHorizontalLineBackwards(out);
+        drawBoardBackwards(out);
+        drawHorizontalLineBackwards(out);
 
         drawHorizontalLine(out);
         drawBoard(out);
@@ -42,31 +46,61 @@ public class Board {
         chessGame.setBoard(board);
     }
 
-    private static void drawHorizontalLine(PrintStream out) {
+    private static void drawHorizontalLineBackwards(PrintStream out) {
 
         setBlack(out);
 
-        for (int boardCol = 0; boardCol <= BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            printHeaderText(out, boarder_letters[boardCol]);
-
-            if (boardCol < BOARD_SIZE_IN_SQUARES && boardCol != 0) {
-                out.print(boarder_spacing[boardCol]);
+        int spacingCol = 0;
+        for (int boardCol = BOARD_SIZE_IN_SQUARES-1; boardCol >= 0; --boardCol) {
+            if (spacingCol < BOARD_SIZE_IN_SQUARES) {
+                out.print(boarder_spacing[spacingCol]);
             }
+            printHeaderText(out, boarder_letters[boardCol]);
+            spacingCol++;
         }
 
         out.println();
     }
 
-    private static void printHeaderText(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-        out.print(player);
-        setBlack(out);
+    private static void drawBoardBackwards(PrintStream out) {
+
+        for (int boardRow = BOARD_SIZE_IN_SQUARES-1; boardRow >= 0; --boardRow) {
+            int rowNumber = boardRow+1;
+            String number = "" + rowNumber;
+            drawVerticalLine(out, number);
+            drawRowBackwards(out, boardRow);
+            drawVerticalLine(out, number);
+            out.println();
+        }
     }
-    private static void printPieceText(PrintStream out, String piece) {
-        out.print(SET_TEXT_COLOR_WHITE);
-        out.print(piece);
+
+    private static void drawRowBackwards(PrintStream out, int boardRow) {
+
+        ChessBoard board = chessGame.getBoard();
+
+        for (int boardCol = BOARD_SIZE_IN_SQUARES-1; boardCol >= 0; --boardCol) {
+            ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
+            ChessPiece piece = board.getPiece(position);
+            if (piece == null) {
+                drawBoardSpace(out, EMPTY);
+            } else {
+                drawBoardSpace(out, getChessPieceCharacter(piece));
+            }
+        }
+    }
+
+    private static void drawHorizontalLine(PrintStream out) {
+
         setBlack(out);
+
+        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+            if (boardCol < BOARD_SIZE_IN_SQUARES) {
+                out.print(boarder_spacing[boardCol]);
+            }
+            printHeaderText(out, boarder_letters[boardCol]);
+        }
+
+        out.println();
     }
 
     private static void drawBoard(PrintStream out) {
@@ -94,6 +128,18 @@ public class Board {
                 drawBoardSpace(out, getChessPieceCharacter(piece));
             }
         }
+    }
+
+    private static void printHeaderText(PrintStream out, String player) {
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(player);
+        setBlack(out);
+    }
+    private static void printPieceText(PrintStream out, String piece) {
+        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(piece);
+        setBlack(out);
     }
 
     private static void drawBoardSpace(PrintStream out, String piece) {
