@@ -64,13 +64,15 @@ public class Board {
 
     private static void drawBoardBackwards(PrintStream out) {
 
+        int row = 1;
+        String number = "" + row;
         for (int boardRow = BOARD_SIZE_IN_SQUARES-1; boardRow >= 0; --boardRow) {
-            int rowNumber = boardRow+1;
-            String number = "" + rowNumber;
             drawVerticalLine(out, number);
             drawRowBackwards(out, boardRow);
             drawVerticalLine(out, number);
             out.println();
+            row++;
+            number = "" + row;
         }
     }
 
@@ -91,6 +93,7 @@ public class Board {
 
     private static void drawHorizontalLine(PrintStream out) {
 
+
         setBlack(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
@@ -105,13 +108,15 @@ public class Board {
 
     private static void drawBoard(PrintStream out) {
 
+        int row = BOARD_SIZE_IN_SQUARES;
+        String number = "" + row;
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            int rowNumber = boardRow+1;
-            String number = "" + rowNumber;
             drawVerticalLine(out, number);
             drawRow(out, boardRow);
             drawVerticalLine(out, number);
             out.println();
+            row--;
+            number = "" + row;
         }
     }
 

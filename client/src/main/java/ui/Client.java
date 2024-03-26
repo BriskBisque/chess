@@ -7,7 +7,6 @@ import model.Results.ListGameResult;
 import model.Results.UserResult;
 import server.GameNameResponse;
 import server.Server;
-import server.ServerFacade;
 
 import java.util.Collection;
 import java.util.Scanner;
@@ -20,10 +19,7 @@ public class Client {
 
     public Client(){
         scanner = new Scanner(System.in);
-
-        Server server = new Server();
-        server.run(0);
-        var url = "http://localhost:" + server.port();
+        var url = "http://localhost:" + 8080;
         facade = new ServerFacade(url);
     }
 
@@ -41,7 +37,14 @@ public class Client {
     }
 
     private void prelogInput() throws DataAccessException {
-        int userInput = Integer.parseInt(scanner.nextLine());
+        int userInput;
+        try {
+            userInput = Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("Please enter a number.");
+            preLoginUI();
+            return;
+        }
         switch (userInput) {
             case 1 -> registerUI();
             case 2 -> loginUI();
@@ -52,12 +55,6 @@ public class Client {
 
     private void quit() {
         System.out.println("quitted");
-        try {
-            facade.deleteAll();
-        } catch (Exception e){
-            System.out.println("An error has occured. Please contact support for assistance.");
-            return;
-        }
         System.exit(0);
     }
 
@@ -126,7 +123,14 @@ public class Client {
     }
 
     private void postLogInput() throws DataAccessException {
-        int userInput = Integer.parseInt(scanner.nextLine());
+        int userInput;
+        try {
+            userInput = Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("Please enter a number.");
+            postLoginUI();
+            return;
+        }
         switch (userInput) {
             case 1 -> createGameUI();
             case 2 -> joinGameUI();
@@ -154,7 +158,7 @@ public class Client {
 
         try {
             int id = facade.createGame(userAuthToken, new GameNameResponse(gameName));
-            System.out.println("Game created with id" + id);
+            System.out.println("Game created with id " + id);
         } catch (Exception e){
             System.out.println("An error has occured. Please contact support for assistance.");
         }
@@ -165,7 +169,14 @@ public class Client {
     private void joinGameUI() throws DataAccessException {
         assertSignedIn();
         System.out.println("Please give a game number:");
-        int gameID = Integer.parseInt(scanner.nextLine());
+        int gameID;
+        try {
+            gameID = Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("The game ID has to be a number.");
+            joinGameUI();
+            return;
+        }
         System.out.println("Please give a team color (WHITE/BLACK):");
         String gameColor = scanner.nextLine();
 
@@ -183,7 +194,14 @@ public class Client {
     private void joinObserverUI() throws DataAccessException {
         assertSignedIn();
         System.out.println("Please give a game number:");
-        int gameID = scanner.nextInt();
+        int gameID;
+        try {
+            gameID = Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("The game ID has to be a number.");
+            joinObserverUI();
+            return;
+        }
 
         try {
             facade.joinGame(userAuthToken, new JoinGameData(null, gameID));
@@ -204,7 +222,7 @@ public class Client {
 
             int i = 1;
             for (GameResult game : games) {
-                System.out.printf("%d. Name = %s, ID = %d White Player = %s, Black Player = %s", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername());
+                System.out.printf("%d. Name = %s, ID = %d, White Player = %s, Black Player = %s\n", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername());
                 i++;
             }
         } catch (Exception e){
@@ -223,7 +241,7 @@ public class Client {
                 4. Lists the games in the system, numbered by ID.\s
                 5. Logs the user out.\s
                 Anything else, you will get a help menu.""");
-        prelogInput();
+        postLogInput();
     }
 
     private void assertSignedIn() throws DataAccessException {

@@ -1,10 +1,11 @@
-package server;
+package ui;
 
 import dataAccess.DataAccessException;
 import model.*;
 import model.Results.GameIDResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
+import server.GameNameResponse;
 
 public class ServerFacade {
 

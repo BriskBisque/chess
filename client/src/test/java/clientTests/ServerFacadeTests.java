@@ -1,7 +1,6 @@
 package clientTests;
 
 import dataAccess.DataAccessException;
-import model.AuthData;
 import model.JoinGameData;
 import model.LoginData;
 import model.Results.GameResult;
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import server.GameNameResponse;
 import server.Server;
-import server.ServerFacade;
+import ui.ServerFacade;
 
 import java.util.Collection;
 
