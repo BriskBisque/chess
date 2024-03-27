@@ -1,4 +1,4 @@
-package server.websocket;
+package webSocketMessages;
 
 import java.util.Objects;
 

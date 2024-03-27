@@ -5,12 +5,11 @@ import dataAccess.DataAccessException;
 import dataaccess.DataAccess;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import webSocketMessages.Action;
 import webSocketMessages.Notification;
+import webSocketMessages.ServerMessage;
 
 import java.io.IOException;
-import java.util.Timer;
 
 public class WebsocketHandler {
     private final ConnectionManager connections = new ConnectionManager();

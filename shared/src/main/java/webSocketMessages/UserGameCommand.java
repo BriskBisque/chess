@@ -1,4 +1,4 @@
-package ui.websocket;
+package webSocketMessages;
 
 import java.util.Objects;
 
@@ -33,6 +33,8 @@ public class UserGameCommand {
     public CommandType getCommandType() {
         return this.commandType;
     }
+
+    public void setCommandType(CommandType commandType){this.commandType = commandType;}
 
     @Override
     public boolean equals(Object o) {

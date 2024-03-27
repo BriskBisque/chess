@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import exception.ResponseException;
 import org.glassfish.tyrus.core.wsadl.model.Endpoint;
+import server.Server;
 import webSocketMessages.Action;
 import webSocketMessages.Notification;
+import webSocketMessages.ServerMessage;
+import webSocketMessages.UserGameCommand;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -16,7 +19,7 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    NotificationHandler notificationHandler;
+    NotificationHandler messageHandler;
 
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
@@ -32,8 +35,11 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    switch (message){
+                        case "Update" -> ;
+                    }
+                    messageHandler.notify(notification);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -46,19 +52,30 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws DataAccessException {
+    public void joinPlayer(String authToken) throws DataAccessException {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            var command = new UserGameCommand(authToken);
+            command.setCommandType(UserGameCommand.CommandType.JOIN_PLAYER);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new DataAccessException(ex.getMessage());
         }
     }
 
-    public void leavePetShop(String visitorName) throws DataAccessException {
+    public void joinObserver(String authToken) throws DataAccessException {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            var command = new UserGameCommand(authToken);
+            command.setCommandType(UserGameCommand.CommandType.JOIN_OBSERVER);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    public void leaveGame() throws DataAccessException {
+        try {
+            var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            this.session.getBasicRemote().sendText(new Gson().toJson(serverMessage));
             this.session.close();
         } catch (IOException ex) {
             throw new DataAccessException(ex.getMessage());
