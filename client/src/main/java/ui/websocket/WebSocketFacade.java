@@ -19,14 +19,13 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    NotificationHandler messageHandler;
+    MessageHandler messageHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
+    public WebSocketFacade(String url) throws DataAccessException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
-            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -35,10 +34,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    switch (message){
-                        case "Update" -> ;
-                    }
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     messageHandler.notify(notification);
                 }
             });
@@ -72,11 +68,31 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leaveGame() throws DataAccessException {
+    public void makeMove(String authToken) throws DataAccessException {
         try {
-            var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            this.session.getBasicRemote().sendText(new Gson().toJson(serverMessage));
-            this.session.close();
+            var command = new UserGameCommand(authToken);
+            command.setCommandType(UserGameCommand.CommandType.MAKE_MOVE);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    public void resignGame(String authToken) throws DataAccessException {
+        try {
+            var command = new UserGameCommand(authToken);
+            command.setCommandType(UserGameCommand.CommandType.RESIGN);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    public void leaveGame(String authToken) throws DataAccessException {
+        try {
+            var command = new UserGameCommand(authToken);
+            command.setCommandType(UserGameCommand.CommandType.LEAVE);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new DataAccessException(ex.getMessage());
         }
