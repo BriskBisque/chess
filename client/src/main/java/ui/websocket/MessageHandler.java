@@ -1,7 +1,7 @@
 package client.websocket;
 
-import webSocketMessages.ServerMessage;
+import webSocketMessages.Notification;
 
 public interface MessageHandler {
-    void notify(ServerMessage message);
+    void notify(Notification message);
 }

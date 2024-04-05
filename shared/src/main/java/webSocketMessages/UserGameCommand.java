@@ -10,6 +10,8 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
+    int gameID;
+
     public UserGameCommand(String authToken) {
         this.authToken = authToken;
     }
@@ -35,6 +37,8 @@ public class UserGameCommand {
     }
 
     public void setCommandType(CommandType commandType){this.commandType = commandType;}
+
+    public int getGameID(){return this.gameID;}
 
     @Override
     public boolean equals(Object o) {
