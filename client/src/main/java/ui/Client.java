@@ -249,4 +249,68 @@ public class Client {
             throw new DataAccessException("You must sign in");
         }
     }
+
+    private void gameplayUI() {
+        System.out.println("""
+                Enter just the number of the option you want\s
+                1. Make Move\s
+                2. Highlight Legal Moves\s
+                3. Redraw Chess Board\s
+                4. Leave\s
+                5. Resign\s
+                6. Help
+                """);
+        gameplayInput();
+    }
+
+    private void gameplayInput(){
+        int userInput;
+        try {
+            userInput = Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("Please enter a number.");
+            gameplayUI();
+            return;
+        }
+        switch (userInput) {
+            case 1 -> makeMoveUI();
+            case 2 -> highlightGameUI();
+            case 3 -> redrawGameUI();
+            case 4 -> leaveGameUI();
+            case 5 -> resignGameUI();
+            default -> gameplayHelp();
+        }
+    }
+
+    private void makeMoveUI(){
+
+    }
+
+    private void highlightGameUI(){
+
+    }
+
+    private void redrawGameUI(){
+
+    }
+
+    private void leaveGameUI(){
+
+    }
+
+    private void resignGameUI(){
+
+    }
+
+    private void gameplayHelp(){
+        System.out.println("""
+                Enter just the number of the option you want to pick.\s
+                1. Enter a start location and an end location to make a move.\s
+                2. Enter a location to see what moves the piece can make.\s
+                3. Redraws the board.\s
+                4. Leaves the game without resigning.\s
+                5. Forfeits the game.\s
+                Anything else, you will get a help menu.""");
+        gameplayInput();
+    }
 }
