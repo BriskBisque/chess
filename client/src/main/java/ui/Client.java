@@ -283,6 +283,11 @@ public class Client {
     }
 
     private void makeMoveUI(){
+        System.out.println("Please enter the start location: ");
+        String start = scanner.nextLine();
+        System.out.println("Please enter the end location: ");
+        String end = scanner.nextLine();
+
 
     }
 
