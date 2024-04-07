@@ -5,6 +5,7 @@ import dataAccess.DataAccessException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import webSocketMessages.*;
+import webSocketMessages.ErrorMessage;
 
 import java.io.IOException;
 
@@ -55,7 +56,6 @@ public class WebsocketHandler {
         String authToken = command.getAuthString();
         int gameID = command.getGameID();
         try {
-            connections.add(authToken, session);
             var notification = new Notification(message);
             connections.broadcast(authToken, notification);
         } catch (Exception e) {
@@ -68,7 +68,7 @@ public class WebsocketHandler {
         String authToken = command.getAuthString();
         int gameID = command.getGameID();
         try {
-            connections.add(authToken, session);
+            connections.remove(authToken);
             var notification = new Notification(message);
             connections.broadcast(authToken, notification);
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class WebsocketHandler {
         String authToken = command.getAuthString();
         int gameID = command.getGameID();
         try {
-            connections.add(authToken, session);
+            connections.remove(authToken);
             var notification = new Notification(message);
             connections.broadcast(authToken, notification);
         } catch (Exception e) {
@@ -91,17 +91,7 @@ public class WebsocketHandler {
 
     private void error(String authToken) throws IOException {
         connections.remove(authToken);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        var notification = new ErrorMessage();
         connections.broadcast(authToken, notification);
-    }
-
-    public void notification(String petName, String sound) throws DataAccessException {
-        try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            connections.broadcast("", notification);
-        } catch (Exception ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
     }
 }

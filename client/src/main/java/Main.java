@@ -1,11 +1,12 @@
 import ui.Board;
 import ui.Client;
+import ui.Repl;
 
 public class Main {
     public static void main(String[] args) {
-        Client client = new Client();
+        Repl repl = new Repl("localhost:8080");
         try {
-            client.preLoginUI();
+            Repl.run();
 //            Board.main(null);
         } catch (Exception e){
             System.out.println(e.getMessage());

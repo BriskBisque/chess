@@ -5,7 +5,6 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import org.glassfish.tyrus.core.wsadl.model.Endpoint;
-import server.Server;
 import webSocketMessages.*;
 
 import javax.websocket.*;
@@ -17,10 +16,10 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    MessageHandler messageHandler;
+    client.websocket.MessageHandler messageHandler;
 
 
-    public WebSocketFacade(String url, MessageHandler messageHandler) throws DataAccessException {
+    public WebSocketFacade(String url, client.websocket.MessageHandler messageHandler) throws DataAccessException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
@@ -33,8 +32,12 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    messageHandler.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()){
+                        case LOAD_GAME -> loadGame(message);
+                        case ERROR -> error(message);
+                        case NOTIFICATION -> notification(message);
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -42,9 +45,19 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    public void loadGame(String serverMessage){
+        LoadGame message = new Gson().fromJson(serverMessage, LoadGame.class);
+
+    }
+
+    public void error(String serverMessage){
+        ErrorMessage message = new Gson().fromJson(serverMessage, ErrorMessage.class);
+
+    }
+
+    public void notification(String serverMessage){
+        Notification message = new Gson().fromJson(serverMessage, Notification.class);
+
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws DataAccessException {
