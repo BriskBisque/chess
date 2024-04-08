@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessGame;
+import webSocketMessages.ErrorMessage;
 import webSocketMessages.Notification;
 
 import java.util.Scanner;
@@ -14,6 +16,7 @@ public class Repl implements client.websocket.MessageHandler {
     }
 
     public void run() {
+        System.out.print(SET_BG_COLOR_BLACK);
         System.out.println("Chess :D");
         System.out.print(SET_TEXT_COLOR_WHITE + client.inputUI());
 
@@ -37,6 +40,15 @@ public class Repl implements client.websocket.MessageHandler {
     public void notify(Notification notification) {
         System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
         printPrompt();
+    }
+
+    public void loadGame(ChessGame game) {
+        client.setBoard(game);
+        client.redrawGameUI();
+    }
+
+    public void error(ErrorMessage error){
+        System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage());
     }
 
     private void printPrompt() {

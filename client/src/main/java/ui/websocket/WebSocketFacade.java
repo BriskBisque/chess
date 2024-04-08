@@ -47,17 +47,18 @@ public class WebSocketFacade extends Endpoint {
 
     public void loadGame(String serverMessage){
         LoadGame message = new Gson().fromJson(serverMessage, LoadGame.class);
-
+        ChessGame game = new Gson().fromJson(message.game, ChessGame.class);
+        messageHandler.loadGame(game);
     }
 
     public void error(String serverMessage){
-        ErrorMessage message = new Gson().fromJson(serverMessage, ErrorMessage.class);
-
+        ErrorMessage error = new Gson().fromJson(serverMessage, ErrorMessage.class);
+        messageHandler.error(error);
     }
 
     public void notification(String serverMessage){
-        Notification message = new Gson().fromJson(serverMessage, Notification.class);
-
+        Notification notification = new Gson().fromJson(serverMessage, Notification.class);
+        messageHandler.notify(notification);
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws DataAccessException {

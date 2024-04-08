@@ -1,12 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Random;
 
 import static ui.EscapeSequences.*;
@@ -20,31 +18,45 @@ public class Board {
     private static final String[] boarder_spacing = {"   ", "    ", "    ", "    ", "   ", "    ", "   ", "    "};
     private static Random rand = new Random();
     private static ChessGame chessGame = new ChessGame();
+    private final PrintStream out;
 
+    public Board(){
+        ChessBoard board = chessGame.getBoard();
+        board.resetBoard();
+        chessGame.setBoard(board);
+        out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    }
 
     public static void main(String[] args) {
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        setupBoard();
+    }
 
+    public void drawWhitePlayer(Collection<ChessMove> moves){
         out.print(ERASE_SCREEN);
 
         drawHorizontalLineBackwards(out);
-        drawBoardBackwards(out);
+        drawBoardBackwards(out, moves);
         drawHorizontalLineBackwards(out);
 
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    public void drawBlackPlayer(Collection<ChessMove> moves){
+        out.print(ERASE_SCREEN);
+
         drawHorizontalLine(out);
-        drawBoard(out);
+        drawBoard(out, moves);
         drawHorizontalLine(out);
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void setupBoard(){
-        ChessBoard board = chessGame.getBoard();
-        board.resetBoard();
-        chessGame.setBoard(board);
+    public void setGame(ChessGame game){
+        chessGame = game;
     }
+
+    public ChessGame getGame() {return chessGame;}
 
     private static void drawHorizontalLineBackwards(PrintStream out) {
 
@@ -62,13 +74,13 @@ public class Board {
         out.println();
     }
 
-    private static void drawBoardBackwards(PrintStream out) {
+    private static void drawBoardBackwards(PrintStream out, Collection<ChessMove> moves) {
 
         int row = 1;
         String number = "" + row;
         for (int boardRow = BOARD_SIZE_IN_SQUARES-1; boardRow >= 0; --boardRow) {
             drawVerticalLine(out, number);
-            drawRowBackwards(out, boardRow);
+            drawRowBackwards(out, boardRow, moves);
             drawVerticalLine(out, number);
             out.println();
             row++;
@@ -76,24 +88,41 @@ public class Board {
         }
     }
 
-    private static void drawRowBackwards(PrintStream out, int boardRow) {
+    private static void drawRowBackwards(PrintStream out, int boardRow, Collection<ChessMove> moves) {
 
         ChessBoard board = chessGame.getBoard();
+        boolean checkHighlight;
 
         for (int boardCol = BOARD_SIZE_IN_SQUARES-1; boardCol >= 0; --boardCol) {
             ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
             ChessPiece piece = board.getPiece(position);
+            checkHighlight = isMoveSpace(moves, position);
             if (piece == null) {
-                drawBoardSpace(out, EMPTY);
+                if (!checkHighlight) {
+                    drawBoardSpace(out, EMPTY);
+                } else {
+                    drawHighlightedSpace(out, EMPTY);
+                }
             } else {
-                drawBoardSpace(out, getChessPieceCharacter(piece));
+                if (!checkHighlight) {
+                    drawBoardSpace(out, getChessPieceCharacter(piece));
+                } else {
+                    drawHighlightedSpace(out, getChessPieceCharacter(piece));
+                }
             }
         }
     }
 
+    private static boolean isMoveSpace(Collection<ChessMove> moves, ChessPosition position){
+        for (ChessMove move: moves) {
+            if (move.endPos.equals(position)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void drawHorizontalLine(PrintStream out) {
-
-
         setBlack(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
@@ -106,13 +135,13 @@ public class Board {
         out.println();
     }
 
-    private static void drawBoard(PrintStream out) {
+    private static void drawBoard(PrintStream out, Collection<ChessMove> moves) {
 
         int row = BOARD_SIZE_IN_SQUARES;
         String number = "" + row;
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
             drawVerticalLine(out, number);
-            drawRow(out, boardRow);
+            drawRow(out, boardRow, moves);
             drawVerticalLine(out, number);
             out.println();
             row--;
@@ -120,17 +149,27 @@ public class Board {
         }
     }
 
-    private static void drawRow(PrintStream out, int boardRow) {
+    private static void drawRow(PrintStream out, int boardRow, Collection<ChessMove> moves) {
 
         ChessBoard board = chessGame.getBoard();
+        boolean checkHighlight;
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
             ChessPiece piece = board.getPiece(position);
+            checkHighlight = isMoveSpace(moves, position);
             if (piece == null) {
-                drawBoardSpace(out, EMPTY);
+                if (!checkHighlight) {
+                    drawBoardSpace(out, EMPTY);
+                } else {
+                    drawHighlightedSpace(out, EMPTY);
+                }
             } else {
-                drawBoardSpace(out, getChessPieceCharacter(piece));
+                if (!checkHighlight) {
+                    drawBoardSpace(out, getChessPieceCharacter(piece));
+                } else {
+                    drawHighlightedSpace(out, getChessPieceCharacter(piece));
+                }
             }
         }
     }
@@ -153,6 +192,13 @@ public class Board {
         out.print(" ");
     }
 
+    private static void drawHighlightedSpace(PrintStream out, String piece) {
+        setGreen(out);
+        printPieceText(out, piece);
+        out.print(" ");
+        out.print(RESET_TEXT_BLINKING);
+    }
+
     private static void drawVerticalLine(PrintStream out, String number) {
         setBlack(out);
         printPieceText(out, number);
@@ -171,6 +217,16 @@ public class Board {
 
     private static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_BLINKING);
+    }
+
+    private static void setYellow(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 

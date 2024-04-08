@@ -57,23 +57,24 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
 
     public Collection<ChessMove> addPromo(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition){
         Collection<ChessMove> tempMoves = new ArrayList<>();
-        if ((newPosition.getRow() < 9 && newPosition.getRow() > 0) && (newPosition.getColumn() < 9 && newPosition.getColumn() > 0)) {
-            if ((this.color == ChessGame.TeamColor.BLACK) && (newPosition.getRow() == 1)) {
-                for (ChessPiece.PieceType promoType : this.promoTypes) {
-                    if ((promoType != ChessPiece.PieceType.PAWN) && (promoType != ChessPiece.PieceType.KING)) {
-                        tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
-                    }
+        if (canPromote(newPosition.row, newPosition.col)) {
+            for (ChessPiece.PieceType promoType : this.promoTypes) {
+                if ((promoType != ChessPiece.PieceType.PAWN) && (promoType != ChessPiece.PieceType.KING)) {
+                    tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
                 }
-            } else if ((this.color == ChessGame.TeamColor.WHITE) && (newPosition.getRow() == 8)){
-                for (ChessPiece.PieceType promoType : this.promoTypes) {
-                    if ((promoType != ChessPiece.PieceType.PAWN) && (promoType != ChessPiece.PieceType.KING)) {
-                        tempMoves.add(new ChessMove(myPosition, newPosition, promoType));
-                    }
-                }
-            } else {
-                tempMoves.add(new ChessMove(myPosition, newPosition, null));
             }
+        } else {
+            tempMoves.add(new ChessMove(myPosition, newPosition, null));
         }
         return tempMoves;
+    }
+
+    public boolean canPromote(int row, int col){
+        if ((row < 9 && row > 0) && (col < 9 && col > 0)) {
+            if ((this.color == ChessGame.TeamColor.BLACK) && (row == 1)) {
+                return true;
+            } else return (this.color == ChessGame.TeamColor.WHITE) && (row == 8);
+        }
+        return false;
     }
 }

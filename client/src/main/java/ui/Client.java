@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.ChessPiece;
 import dataAccess.DataAccessException;
 import model.*;
 import model.Results.GameResult;
@@ -8,6 +12,7 @@ import model.Results.UserResult;
 import server.GameNameResponse;
 import ui.websocket.WebSocketFacade;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Scanner;
 
@@ -22,7 +27,10 @@ public class Client {
     private State state = State.SIGNEDOUT;
     private final String serverUrl;
     private final client.websocket.MessageHandler messageHandler;
+    private final Board board = new Board();
     private WebSocketFacade ws;
+    private int joinedGameID;
+    private ChessGame.TeamColor teamColor;
 
     public Client(String serverUrl, client.websocket.MessageHandler messageHandler){
         scanner = new Scanner(System.in);
@@ -122,6 +130,11 @@ public class Client {
                 5. Forfeits the game.\s
                 Anything else, you will get a help menu.""";}
             }
+        } else if (this.state == State.OBSERVING) {
+            return switch (userInput) {
+                case 1 -> leaveGameUI();
+                default -> "You are still observing the game.";
+            };
         }
         return "quit";
     }
@@ -191,11 +204,24 @@ public class Client {
             joinGameUI();
             return null;
         }
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a team color (WHITE/BLACK):");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
-        String gameColor = scanner.nextLine();
 
-        facade.joinGame(this.authToken, new JoinGameData(gameColor, gameID));
+        ChessGame.TeamColor playerColor = null;
+        String colorInput = "";
+        while (playerColor == null) {
+            System.out.println(SET_TEXT_COLOR_WHITE + "Please give a team color (WHITE/BLACK):");
+            System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+            colorInput = scanner.nextLine();
+
+            switch (colorInput.toUpperCase()){
+                case "WHITE" -> {playerColor = ChessGame.TeamColor.WHITE;}
+                case "BLACK" -> {playerColor = ChessGame.TeamColor.BLACK;}
+                default -> {System.out.println(SET_TEXT_COLOR_WHITE + "It seems there was a typo with the player color.");}
+            }
+        }
+
+        facade.joinGame(this.authToken, new JoinGameData(colorInput, gameID));
+        ws.joinPlayer(authToken, gameID, playerColor);
+        teamColor = playerColor;
 
         Board.main(null);
 
@@ -217,6 +243,8 @@ public class Client {
         }
 
         facade.joinGame(this.authToken, new JoinGameData(null, gameID));
+        ws.joinObserver(authToken, gameID);
+        teamColor = ChessGame.TeamColor.WHITE;
 
         Board.main(null);
 
@@ -246,32 +274,94 @@ public class Client {
         }
     }
 
-    private void makeMoveUI(){
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the start location: ");
+    private String makeMoveUI(){
+        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the start location (ex: a1): ");
         System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
         String start = scanner.nextLine();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the end location: ");
+        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the end location (ex: b2): ");
         System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
         String end = scanner.nextLine();
 
-        ChessMove =
+        ChessPiece.PieceType promoType = ChessPiece.PieceType.KING;
+        while (promoType == ChessPiece.PieceType.KING) {
+            System.out.println(SET_TEXT_COLOR_WHITE + "Please enter a promotion type. If no promotion is available, please enter NONE.\n" +
+                    " (NONE/ROOK/BISHOP/KNIGHT/QUEEN)");
+            System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+            String typeInput = scanner.nextLine();
 
+            switch (typeInput.toUpperCase()) {
+                case "ROOK" -> {
+                    promoType = ChessPiece.PieceType.ROOK;
+                }
+                case "BISHOP" -> {
+                    promoType = ChessPiece.PieceType.BISHOP;
+                }
+                case "KNIGHT" -> {
+                    promoType = ChessPiece.PieceType.KNIGHT;
+                }
+                case "QUEEN" -> {
+                    promoType = ChessPiece.PieceType.QUEEN;
+                }
+                case "NONE" -> {
+                    promoType = null;
+                }
+                default -> {
+                    System.out.println(SET_TEXT_COLOR_WHITE + "It seems there was a typo with the promotion type.");
+                }
+            }
+        }
 
+        ChessPosition startPos = new ChessPosition(start.charAt(0), start.charAt(1));
+        ChessPosition endPos = new ChessPosition(end.charAt(0), end.charAt(1));
+        ChessMove move = new ChessMove(startPos, endPos, promoType);
+
+        try {
+            ws.makeMove(authToken, joinedGameID, move);
+        } catch (Exception ignored) {
+            return "Move failed.";
+        }
+
+        return "Moved " + start + " to " + end;
     }
 
-    private void highlightGameUI(){
+    private String highlightGameUI(){
+        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the piece location (ex: a1): ");
+        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        String locationInput = scanner.nextLine();
 
+        ChessPosition position = new ChessPosition(locationInput.charAt(0), locationInput.charAt(1));
+        Collection<ChessMove> moves = board.getGame().validMoves(position);
+
+        if (teamColor == ChessGame.TeamColor.BLACK) {
+            board.drawBlackPlayer(moves);
+        } else {
+            board.drawWhitePlayer(moves);
+        }
+
+        return "Moves for location " + locationInput;
     }
 
-    private void redrawGameUI(){
+    public String redrawGameUI(){
+        Collection<ChessMove> moves = new ArrayList<>();
+        if (teamColor == ChessGame.TeamColor.BLACK) {
+            board.drawBlackPlayer(moves);
+        } else {
+            board.drawWhitePlayer(moves);
+        }
 
+        return "Board redrawn.";
     }
 
     private void leaveGameUI(){
-
+        facade.joinGame("", new JoinGameData(teamColor, joinedGameID));
+        ws.leaveGame(authToken, joinedGameID);
     }
 
     private void resignGameUI(){
 
+    }
+
+    public void setBoard(ChessGame game){
+        board.setGame(game);
     }
 }
