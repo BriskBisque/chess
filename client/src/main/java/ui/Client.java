@@ -352,13 +352,23 @@ public class Client {
         return "Board redrawn.";
     }
 
-    private void leaveGameUI(){
-        facade.joinGame("", new JoinGameData(teamColor, joinedGameID));
+    private String leaveGameUI() throws DataAccessException {
+        if (teamColor == ChessGame.TeamColor.BLACK) {
+            facade.joinGame("", new JoinGameData("BLACK", joinedGameID));
+        } else if (teamColor == ChessGame.TeamColor.WHITE) {
+            facade.joinGame("", new JoinGameData("WHITE", joinedGameID));
+        } else {
+            facade.joinGame("", new JoinGameData("EMPTY", joinedGameID));
+        }
         ws.leaveGame(authToken, joinedGameID);
+
+        return "Left Game";
     }
 
-    private void resignGameUI(){
+    private String resignGameUI() throws DataAccessException {
+        ws.resignGame(authToken, joinedGameID);
 
+        return "Resigned Game.";
     }
 
     public void setBoard(ChessGame game){
