@@ -84,26 +84,36 @@ public class Service {
         throw new DataAccessException("Error: bad request");
     }
 
+    public GameData getGame(int gameID) throws DataAccessException {
+        return gameDao.getGame(gameID);
+    }
+
+    public void setGame(GameData gameData) throws DataAccessException {
+        gameDao.updateGameString(gameData);
+    }
+
+    public String getUsername(String authToken) throws DataAccessException {
+        return userDao.getUser(authToken).username();
+    }
+
     public void joinGame(JoinGameData gameReqData, String authToken) throws DataAccessException {
         GameData game = gameDao.getGame(gameReqData.gameID());
         String username = authDao.getUser(authToken);
         if (Objects.equals(gameReqData.playerColor(), "BLACK")) {
             if (game.blackUsername() == null) {
                 game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-                gameDao.updateGame(game, "BLACK");
+                gameDao.updateGamePlayers(game, "BLACK");
             } else {
                 throw new DataAccessException("Error: already taken");
             }
         } else if (Objects.equals(gameReqData.playerColor(), "WHITE")) {
             if (game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-                gameDao.updateGame(game, "WHITE");
+                gameDao.updateGamePlayers(game, "WHITE");
             } else {
                 throw new DataAccessException("Error: already taken");
             }
-        } else if (Objects.equals(gameReqData.playerColor(), null)) {
-            // to do in phase 6
-        } else {
+        } else if (!Objects.equals(gameReqData.playerColor(), null)) {
             throw new DataAccessException("Error: already taken");
         }
     }

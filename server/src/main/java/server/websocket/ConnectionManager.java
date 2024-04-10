@@ -1,6 +1,8 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.ErrorMessage;
+import webSocketMessages.LoadGame;
 import webSocketMessages.Notification;
 import webSocketMessages.ServerMessage;
 
@@ -20,12 +22,48 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String excludeAuthToken, ServerMessage notification) throws IOException {
+    public void broadcast(String excludeAuthToken, Notification notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeAuthToken)) {
                     c.send(notification.toString());
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
+        }
+    }
+
+    public void sendGame(String excludeAuthToken, LoadGame loadGame) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (!c.authToken.equals(excludeAuthToken)) {
+                    c.send(loadGame.toString());
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
+        }
+    }
+
+    public void sendError(String excludeAuthToken, ErrorMessage error) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.authToken.equals(excludeAuthToken)) {
+                    c.send(error.toString());
                 }
             } else {
                 removeList.add(c);

@@ -18,12 +18,12 @@ public class Repl implements client.websocket.MessageHandler {
     public void run() {
         System.out.print(SET_BG_COLOR_BLACK);
         System.out.println("Chess :D");
-        System.out.print(SET_TEXT_COLOR_WHITE + client.inputUI());
+        System.out.println(SET_TEXT_COLOR_WHITE + client.inputUI());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            printPrompt();
+            client.printPrompt();
             int line = client.parseInput(scanner);
 
             try {
@@ -31,15 +31,18 @@ public class Repl implements client.websocket.MessageHandler {
                 System.out.print(SET_TEXT_COLOR_LIGHT_GREY + result);
             } catch (Throwable e) {
                 var msg = e.toString();
-                System.out.print(msg);
+                System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + msg);
             }
-            System.out.print(SET_TEXT_COLOR_WHITE + client.inputUI());
+            if (!result.equals("quit")) {
+                client.setUIColor();
+                System.out.println(client.inputUI());
+            }
         }
     }
 
     public void notify(Notification notification) {
         System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
-        printPrompt();
+        client.printPrompt();
     }
 
     public void loadGame(ChessGame game) {
@@ -49,9 +52,5 @@ public class Repl implements client.websocket.MessageHandler {
 
     public void error(ErrorMessage error){
         System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage());
-    }
-
-    private void printPrompt() {
-        System.out.print("\n" + ">>> " + SET_BG_COLOR_GREEN);
     }
 }

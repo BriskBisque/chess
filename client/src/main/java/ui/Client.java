@@ -39,6 +39,14 @@ public class Client {
         this.messageHandler = messageHandler;
     }
 
+    public void setUIColor(){
+        System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_BLACK);
+    }
+
+    void printPrompt() {
+        System.out.print(">>> " + SET_BG_COLOR_GREEN);
+    }
+
     public String inputUI() {
         if (this.state == State.SIGNEDOUT) {
             return """
@@ -140,14 +148,17 @@ public class Client {
     }
 
     private String registerUI() throws DataAccessException {
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a username:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a username:");
+        printPrompt();
         String username = scanner.nextLine();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a password:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a password:");
+        printPrompt();
         String password = scanner.nextLine();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give an email:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give an email:");
+        printPrompt();
         String email = scanner.nextLine();
 
         facade.registerUser(new UserData(username, password, email));
@@ -155,11 +166,13 @@ public class Client {
     }
 
     private String loginUI() throws DataAccessException {
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a username:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a username:");
+        printPrompt();
         String username = scanner.nextLine();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a password:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a password:");
+        printPrompt();
         String password = scanner.nextLine();
 
         return login(new LoginData(username, password));
@@ -182,8 +195,9 @@ public class Client {
 
     private String createGameUI() throws DataAccessException {
         assertSignedIn();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a game name:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a game name:");
+        printPrompt();
         String gameName = scanner.nextLine();
 
         int id = facade.createGame(this.authToken, new GameNameResponse(gameName));
@@ -194,13 +208,15 @@ public class Client {
     private String joinGameUI() throws DataAccessException {
         assertSignedIn();
 
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a game number:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a game number:");
+        printPrompt();
         int gameID;
         try {
             gameID = Integer.parseInt(scanner.nextLine());
         } catch (Exception e) {
-            System.out.println(SET_TEXT_COLOR_WHITE + "The game ID has to be a number.");
+            setUIColor();
+            System.out.println("The game ID has to be a number.");
             joinGameUI();
             return null;
         }
@@ -208,8 +224,9 @@ public class Client {
         ChessGame.TeamColor playerColor = null;
         String colorInput = "";
         while (playerColor == null) {
-            System.out.println(SET_TEXT_COLOR_WHITE + "Please give a team color (WHITE/BLACK):");
-            System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+            setUIColor();
+            System.out.println("Please give a team color (WHITE/BLACK):");
+            printPrompt();
             colorInput = scanner.nextLine();
 
             switch (colorInput.toUpperCase()){
@@ -231,13 +248,15 @@ public class Client {
     private String joinObserverUI() throws DataAccessException {
         assertSignedIn();
 
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please give a game number:");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please give a game number:");
+        printPrompt();
         int gameID;
         try {
             gameID = Integer.parseInt(scanner.nextLine());
         } catch (Exception e) {
-            System.out.println(SET_TEXT_COLOR_WHITE + "The game ID has to be a number.");
+            setUIColor();
+            System.out.println("The game ID has to be a number.");
             joinObserverUI();
             return null;
         }
@@ -275,16 +294,19 @@ public class Client {
     }
 
     private String makeMoveUI(){
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the start location (ex: a1): ");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please enter the start location (ex: a1): ");
+        printPrompt();
         String start = scanner.nextLine();
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the end location (ex: b2): ");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please enter the end location (ex: b2): ");
+        printPrompt();
         String end = scanner.nextLine();
 
         ChessPiece.PieceType promoType = ChessPiece.PieceType.KING;
         while (promoType == ChessPiece.PieceType.KING) {
-            System.out.println(SET_TEXT_COLOR_WHITE + "Please enter a promotion type. If no promotion is available, please enter NONE.\n" +
+            setUIColor();
+            System.out.println("Please enter a promotion type. If no promotion is available, please enter NONE.\n" +
                     " (NONE/ROOK/BISHOP/KNIGHT/QUEEN)");
             System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
             String typeInput = scanner.nextLine();
@@ -306,7 +328,8 @@ public class Client {
                     promoType = null;
                 }
                 default -> {
-                    System.out.println(SET_TEXT_COLOR_WHITE + "It seems there was a typo with the promotion type.");
+                    setUIColor();
+                    System.out.println("It seems there was a typo with the promotion type.");
                 }
             }
         }
@@ -325,8 +348,9 @@ public class Client {
     }
 
     private String highlightGameUI(){
-        System.out.println(SET_TEXT_COLOR_WHITE + "Please enter the piece location (ex: a1): ");
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        setUIColor();
+        System.out.println("Please enter the piece location (ex: a1): ");
+        printPrompt();
         String locationInput = scanner.nextLine();
 
         ChessPosition position = new ChessPosition(locationInput.charAt(0), locationInput.charAt(1));

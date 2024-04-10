@@ -95,7 +95,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(GameData game, String color) throws DataAccessException {
+    public void updateGamePlayers(GameData game, String color) throws DataAccessException {
         String blankUsername;
         String username;
         if (color.equals("BLACK")) {
@@ -112,6 +112,21 @@ public class SQLGameDAO implements GameDAO{
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 ps.setInt(2, game.gameID());
+                int rowsAffected = ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public void updateGameString(GameData gameData) throws DataAccessException {
+        int gameID = gameData.gameID();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET game = ? WHERE gameID = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameData.toString());
+                ps.setInt(2, gameID);
                 int rowsAffected = ps.executeUpdate();
             }
         } catch (Exception e) {
