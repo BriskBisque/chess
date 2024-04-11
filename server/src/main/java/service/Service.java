@@ -102,14 +102,14 @@ public class Service {
         if (Objects.equals(gameReqData.playerColor(), "BLACK")) {
             if (game.blackUsername() == null) {
                 game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-                gameDao.updateGamePlayers(game, "BLACK");
+                gameDao.updateGame(game, "BLACK");
             } else {
                 throw new DataAccessException("Error: already taken");
             }
         } else if (Objects.equals(gameReqData.playerColor(), "WHITE")) {
             if (game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-                gameDao.updateGamePlayers(game, "WHITE");
+                gameDao.updateGame(game, "WHITE");
             } else {
                 throw new DataAccessException("Error: already taken");
             }

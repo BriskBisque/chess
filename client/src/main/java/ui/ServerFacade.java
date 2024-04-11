@@ -6,13 +6,21 @@ import model.Results.GameIDResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
 import server.GameNameResponse;
+import ui.websocket.WebSocketFacade;
+
+import java.util.Objects;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class ServerFacade {
 
     private final ClientCommunicator communicator;
+    private final WebSocketFacade ws;
 
-    public ServerFacade(String url){
+    public ServerFacade(String url, client.websocket.MessageHandler messageHandler) throws DataAccessException {
         communicator = new ClientCommunicator(url);
+        ws = new WebSocketFacade(url, messageHandler);
     }
 
     public UserResult registerUser(UserData user) throws DataAccessException {
@@ -48,5 +56,12 @@ public class ServerFacade {
     public void joinGame(String authToken, JoinGameData joinGameData) throws DataAccessException {
         var path = "/game";
         communicator.makeRequest("PUT", path, joinGameData, authToken, null);
+        if (Objects.equals(joinGameData.playerColor(), "WHITE")) {
+            ws.joinPlayer(authToken, joinGameData.gameID(), WHITE);
+        } else if (Objects.equals(joinGameData.playerColor(), "BLACK")){
+            ws.joinPlayer(authToken, joinGameData.gameID(), BLACK);
+        } else {
+            ws.joinObserver(authToken, joinGameData.gameID());
+        }
     }
 }

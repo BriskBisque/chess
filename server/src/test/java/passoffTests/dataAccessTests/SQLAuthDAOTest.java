@@ -1,4 +1,4 @@
-package dataAccessTests;
+package passoffTests.dataAccessTests;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;

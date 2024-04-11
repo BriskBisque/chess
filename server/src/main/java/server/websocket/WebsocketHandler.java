@@ -6,12 +6,14 @@ import dataAccess.DataAccessException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.Service;
-import webSocketMessages.*;
-import webSocketMessages.ErrorMessage;
+import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.userCommands.*;
 
-import java.io.IOException;
-
+@WebSocket
 public class WebsocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
     private final Service service = new Service();
@@ -34,6 +36,7 @@ public class WebsocketHandler {
     private void joinGamePlayer(Session session, String message) throws DataAccessException {
         var command = new Gson().fromJson(message, JoinPlayer.class);
         String authToken = command.getAuthString();
+        System.out.print("TESTING HANDLER");
         try {
             String username = service.getUsername(authToken);
             ChessGame.TeamColor playerColor = command.getTeamColor();

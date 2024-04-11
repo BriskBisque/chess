@@ -13,6 +13,14 @@
 
     <packaging>jar</packaging>
 
+    <dependency>
+        <groupId>edu.byu.cs240</groupId>
+        <artifactId>shared</artifactId>
+        <version>1.0.0</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+    </dependency>
+
     <build>
         <finalName>shared</finalName>
         <plugins>

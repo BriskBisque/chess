@@ -1,10 +1,12 @@
 package server;
 
+import dataAccess.DataAccessException;
+import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import server.websocket.WebsocketHandler;
 import spark.*;
 
 public class Server {
     public Server() {
-
     }
 
     public int run(int desiredPort) {
@@ -13,6 +15,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/connect", WebsocketHandler.class);
         Spark.post("/user", (req, res) -> (Handler.getInstance()).register(req, res));
         Spark.delete("/db", (req, res) -> (Handler.getInstance()).clear(req,res));
         Spark.post("/session", (req, res) -> (Handler.getInstance()).login(req, res));

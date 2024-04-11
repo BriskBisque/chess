@@ -1,9 +1,11 @@
 package ui;
 
 import chess.ChessGame;
-import webSocketMessages.ErrorMessage;
-import webSocketMessages.Notification;
+import dataAccess.DataAccessException;
+import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.Notification;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -11,7 +13,7 @@ import static ui.EscapeSequences.*;
 public class Repl implements client.websocket.MessageHandler {
     private final Client client;
 
-    public Repl(String serverUrl) {
+    public Repl(String serverUrl) throws DataAccessException {
         client = new Client(serverUrl, this);
     }
 
@@ -28,7 +30,9 @@ public class Repl implements client.websocket.MessageHandler {
 
             try {
                 result = client.eval(line);
-                System.out.print(SET_TEXT_COLOR_LIGHT_GREY + result);
+                if (!Objects.equals(result, "")) {
+                    System.out.println(SET_TEXT_COLOR_GREEN + SET_BG_COLOR_BLACK + result);
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + msg);
@@ -41,16 +45,16 @@ public class Repl implements client.websocket.MessageHandler {
     }
 
     public void notify(Notification notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
+        System.out.println(SET_TEXT_COLOR_RED + SET_BG_COLOR_BLACK + notification.getMessage());
         client.printPrompt();
     }
 
     public void loadGame(ChessGame game) {
         client.setBoard(game);
-        client.redrawGameUI();
+        client.drawGameUI();
     }
 
     public void error(ErrorMessage error){
-        System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage());
+        System.out.println(SET_TEXT_COLOR_RED + SET_BG_COLOR_BLACK + error.getErrorMessage());
     }
 }

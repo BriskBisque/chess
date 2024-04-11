@@ -1,6 +1,4 @@
-package webSocketMessages;
-
-import java.util.Objects;
+package webSocketMessages.serverMessages;
 
 public class LoadGame extends ServerMessage{
     public String game;

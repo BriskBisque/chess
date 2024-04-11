@@ -4,8 +4,11 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import org.glassfish.tyrus.core.wsadl.model.Endpoint;
-import webSocketMessages.*;
+import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -65,6 +68,7 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new JoinPlayer(authToken, gameID, teamColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            System.out.println("TESTING FACADE");
         } catch (IOException ex) {
             throw new DataAccessException(ex.getMessage());
         }
@@ -106,5 +110,8 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
 }
 

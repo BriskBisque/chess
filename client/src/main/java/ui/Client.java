@@ -11,6 +11,7 @@ import model.Results.ListGameResult;
 import model.Results.UserResult;
 import server.GameNameResponse;
 import ui.websocket.WebSocketFacade;
+import static java.lang.Character.getNumericValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,18 +26,12 @@ public class Client {
     private String username = null;
     private String authToken = null;
     private State state = State.SIGNEDOUT;
-    private final String serverUrl;
-    private final client.websocket.MessageHandler messageHandler;
     private final Board board = new Board();
-    private WebSocketFacade ws;
-    private int joinedGameID;
     private ChessGame.TeamColor teamColor;
 
-    public Client(String serverUrl, client.websocket.MessageHandler messageHandler){
+    public Client(String serverUrl, client.websocket.MessageHandler messageHandler) throws DataAccessException {
         scanner = new Scanner(System.in);
-        facade = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
-        this.messageHandler = messageHandler;
+        facade = new ServerFacade(serverUrl, messageHandler);
     }
 
     public void setUIColor(){
@@ -66,7 +61,7 @@ public class Client {
                 6. Help""";
         } else if (this.state == State.INGAME){
             return """
-                Enter just the number of the option you want\s
+                Enter a number: \s
                 1. Make Move\s
                 2. Highlight Legal Moves\s
                 3. Redraw Chess Board\s
@@ -86,7 +81,7 @@ public class Client {
         try {
             return Integer.parseInt(scanner.nextLine());
         } catch (Exception e){
-            System.out.println("Please enter a number.");
+            System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + "Please enter a number.");
             return parseInput(scanner);
         }
     }
@@ -126,7 +121,7 @@ public class Client {
             switch (userInput) {
                 case 1 -> {return makeMoveUI();}
                 case 2 -> {return highlightGameUI();}
-                case 3 -> {return redrawGameUI();}
+                case 3 -> {return drawGameUI();}
                 case 4 -> {return leaveGameUI();}
                 case 5 -> {return resignGameUI();}
                 default -> {return """
@@ -179,7 +174,12 @@ public class Client {
     }
 
     private String login(LoginData loginData) throws DataAccessException {
-        UserResult user = facade.loginUser(loginData);
+        UserResult user = new UserResult("", "");
+        try {
+            user = facade.loginUser(loginData);
+        } catch (Exception e) {
+            throw new DataAccessException("Couldn't log in with the provided information.");
+        }
 
         this.authToken = user.authToken();
         this.username = user.username();
@@ -190,6 +190,9 @@ public class Client {
 
     private String logoutUI() throws DataAccessException {
         facade.logoutUser(this.authToken);
+        this.state = State.SIGNEDOUT;
+        this.authToken = null;
+        this.teamColor = null;
         return this.username + " has been logged out.";
     }
 
@@ -216,9 +219,8 @@ public class Client {
             gameID = Integer.parseInt(scanner.nextLine());
         } catch (Exception e) {
             setUIColor();
-            System.out.println("The game ID has to be a number.");
-            joinGameUI();
-            return null;
+            System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + "The game ID has to be a number.");
+            return joinGameUI();
         }
 
         ChessGame.TeamColor playerColor = null;
@@ -236,11 +238,15 @@ public class Client {
             }
         }
 
-        facade.joinGame(this.authToken, new JoinGameData(colorInput, gameID));
-        ws.joinPlayer(authToken, gameID, playerColor);
-        teamColor = playerColor;
+        try {
+            facade.joinGame(this.authToken, new JoinGameData(colorInput, gameID));
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+        this.state = State.INGAME;
+        this.teamColor = playerColor;
 
-        Board.main(null);
+        drawGameUI();
 
         return "Joined game as player.";
     }
@@ -256,17 +262,21 @@ public class Client {
             gameID = Integer.parseInt(scanner.nextLine());
         } catch (Exception e) {
             setUIColor();
-            System.out.println("The game ID has to be a number.");
-            joinObserverUI();
-            return null;
+            System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + "The game ID has to be a number.");
+            return joinObserverUI();
         }
 
-        facade.joinGame(this.authToken, new JoinGameData(null, gameID));
-        ws.joinObserver(authToken, gameID);
-        teamColor = ChessGame.TeamColor.WHITE;
+        try {
+            facade.joinGame(this.authToken, new JoinGameData(null, gameID));
+            teamColor = ChessGame.TeamColor.WHITE;
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
 
-        Board.main(null);
+        this.state = State.OBSERVING;
+        this.teamColor = null;
 
+        drawGameUI();
         return "Joined game as observer.";
     }
 
@@ -279,8 +289,13 @@ public class Client {
         StringBuilder result = new StringBuilder();
 
         int i = 1;
+        result.append("Games: \n");
         for (GameResult game : games) {
-            result.append(String.format("%d. Name = %s, ID = %d, White Player = %s, Black Player = %s\n", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername()));
+            if (i < games.size()) {
+                result.append(String.format("%d. Name = %s, ID = %d, White Player = %s, Black Player = %s\n", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername()));
+            } else {
+                result.append(String.format("%d. Name = %s, ID = %d, White Player = %s, Black Player = %s", i, game.gameName(), game.gameID(), game.whiteUsername(), game.blackUsername()));
+            }
             i++;
         }
 
@@ -334,12 +349,11 @@ public class Client {
             }
         }
 
-        ChessPosition startPos = new ChessPosition(start.charAt(0), start.charAt(1));
-        ChessPosition endPos = new ChessPosition(end.charAt(0), end.charAt(1));
+        ChessPosition startPos = new ChessPosition(getNumericValue(start.charAt(0))-9, getNumericValue(start.charAt(1)));
+        ChessPosition endPos = new ChessPosition(getNumericValue(end.charAt(0))-9, getNumericValue(end.charAt(0)));
         ChessMove move = new ChessMove(startPos, endPos, promoType);
 
         try {
-            ws.makeMove(authToken, joinedGameID, move);
         } catch (Exception ignored) {
             return "Move failed.";
         }
@@ -353,7 +367,10 @@ public class Client {
         printPrompt();
         String locationInput = scanner.nextLine();
 
-        ChessPosition position = new ChessPosition(locationInput.charAt(0), locationInput.charAt(1));
+        int row = 9-getNumericValue(locationInput.charAt(1));
+        int col = (getNumericValue(locationInput.charAt(0))-9);
+
+        ChessPosition position = new ChessPosition(row, col);
         Collection<ChessMove> moves = board.getGame().validMoves(position);
 
         if (teamColor == ChessGame.TeamColor.BLACK) {
@@ -365,7 +382,7 @@ public class Client {
         return "Moves for location " + locationInput;
     }
 
-    public String redrawGameUI(){
+    public String drawGameUI(){
         Collection<ChessMove> moves = new ArrayList<>();
         if (teamColor == ChessGame.TeamColor.BLACK) {
             board.drawBlackPlayer(moves);
@@ -377,20 +394,21 @@ public class Client {
     }
 
     private String leaveGameUI() throws DataAccessException {
-        if (teamColor == ChessGame.TeamColor.BLACK) {
-            facade.joinGame("", new JoinGameData("BLACK", joinedGameID));
-        } else if (teamColor == ChessGame.TeamColor.WHITE) {
-            facade.joinGame("", new JoinGameData("WHITE", joinedGameID));
-        } else {
-            facade.joinGame("", new JoinGameData("EMPTY", joinedGameID));
+        try {
+            this.state = State.SIGNEDIN;
+        } catch (Exception e){
+            throw new DataAccessException(e.getMessage());
         }
-        ws.leaveGame(authToken, joinedGameID);
 
         return "Left Game";
     }
 
     private String resignGameUI() throws DataAccessException {
-        ws.resignGame(authToken, joinedGameID);
+        try {
+            this.state = State.SIGNEDIN;
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
 
         return "Resigned Game.";
     }

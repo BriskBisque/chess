@@ -95,7 +95,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGamePlayers(GameData game, String color) throws DataAccessException {
+    public void updateGame(GameData game, String color) throws DataAccessException {
         String blankUsername;
         String username;
         if (color.equals("BLACK")) {

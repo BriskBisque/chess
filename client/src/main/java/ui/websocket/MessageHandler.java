@@ -1,8 +1,8 @@
 package client.websocket;
 
 import chess.ChessGame;
-import webSocketMessages.ErrorMessage;
-import webSocketMessages.Notification;
+import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.Notification;
 
 public interface MessageHandler {
     void notify(Notification message);

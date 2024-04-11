@@ -1,4 +1,4 @@
-package webSocketMessages;
+package webSocketMessages.userCommands;
 
 public class Leave extends UserGameCommand{
 

@@ -27,9 +27,6 @@ public class Board {
         out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     }
 
-    public static void main(String[] args) {
-    }
-
     public void drawWhitePlayer(Collection<ChessMove> moves){
         out.print(ERASE_SCREEN);
 
@@ -94,21 +91,26 @@ public class Board {
         boolean checkHighlight;
 
         for (int boardCol = BOARD_SIZE_IN_SQUARES-1; boardCol >= 0; --boardCol) {
-            ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
-            ChessPiece piece = board.getPiece(position);
-            checkHighlight = isMoveSpace(moves, position);
-            if (piece == null) {
-                if (!checkHighlight) {
-                    drawBoardSpace(out, EMPTY);
-                } else {
-                    drawHighlightedSpace(out, EMPTY);
-                }
+            drawSpace(out, boardRow, moves, board, boardCol);
+        }
+    }
+
+    private static void drawSpace(PrintStream out, int boardRow, Collection<ChessMove> moves, ChessBoard board, int boardCol) {
+        boolean checkHighlight;
+        ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
+        ChessPiece piece = board.getPiece(position);
+        checkHighlight = isMoveSpace(moves, position);
+        if (piece == null) {
+            if (!checkHighlight) {
+                drawBoardSpace(out, EMPTY);
             } else {
-                if (!checkHighlight) {
-                    drawBoardSpace(out, getChessPieceCharacter(piece));
-                } else {
-                    drawHighlightedSpace(out, getChessPieceCharacter(piece));
-                }
+                drawHighlightedSpace(out, EMPTY);
+            }
+        } else {
+            if (!checkHighlight) {
+                drawBoardSpace(out, getChessPieceCharacter(piece));
+            } else {
+                drawHighlightedSpace(out, getChessPieceCharacter(piece));
             }
         }
     }
@@ -126,9 +128,7 @@ public class Board {
         setBlack(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            if (boardCol < BOARD_SIZE_IN_SQUARES) {
-                out.print(boarder_spacing[boardCol]);
-            }
+            out.print(boarder_spacing[boardCol]);
             printHeaderText(out, boarder_letters[boardCol]);
         }
 
@@ -155,22 +155,7 @@ public class Board {
         boolean checkHighlight;
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            ChessPosition position = new ChessPosition(boardRow+1, boardCol+1);
-            ChessPiece piece = board.getPiece(position);
-            checkHighlight = isMoveSpace(moves, position);
-            if (piece == null) {
-                if (!checkHighlight) {
-                    drawBoardSpace(out, EMPTY);
-                } else {
-                    drawHighlightedSpace(out, EMPTY);
-                }
-            } else {
-                if (!checkHighlight) {
-                    drawBoardSpace(out, getChessPieceCharacter(piece));
-                } else {
-                    drawHighlightedSpace(out, getChessPieceCharacter(piece));
-                }
-            }
+            drawSpace(out, boardRow, moves, board, boardCol);
         }
     }
 

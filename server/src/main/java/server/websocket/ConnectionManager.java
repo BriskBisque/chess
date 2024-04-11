@@ -1,10 +1,9 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
-import webSocketMessages.ErrorMessage;
-import webSocketMessages.LoadGame;
-import webSocketMessages.Notification;
-import webSocketMessages.ServerMessage;
+import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,11 +23,10 @@ public class ConnectionManager {
 
     public void broadcast(String excludeAuthToken, Notification notification) throws IOException {
         var removeList = new ArrayList<Connection>();
+        System.out.print("TESTING MANAGER");
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(notification.toString());
-                }
+                c.send(notification.toString());
             } else {
                 removeList.add(c);
             }
@@ -44,9 +42,7 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(loadGame.toString());
-                }
+                c.send(loadGame.toString());
             } else {
                 removeList.add(c);
             }

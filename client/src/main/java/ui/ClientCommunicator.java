@@ -31,7 +31,7 @@ public class ClientCommunicator {
             return readBody(http, responseClass);
         } catch (Exception ex) {
             throw new DataAccessException(ex.getMessage());
-        }
+    }
     }
 
 
