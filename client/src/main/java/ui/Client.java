@@ -354,7 +354,6 @@ public class Client {
         ChessPosition startPos = new ChessPosition(startRow, startCol);
         ChessPosition endPos = new ChessPosition(endRow, endCol);
         ChessMove move = new ChessMove(startPos, endPos, promoType);
-        ChessPiece piece = board.getGame().getBoard().getPiece(startPos);
 
         try {
             facade.makeMove(authToken, gameID, move);

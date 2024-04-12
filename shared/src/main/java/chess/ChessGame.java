@@ -126,7 +126,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
-        if (this.checkMoveBounds(move) || movedPiece == null || movedPiece.color != this.teamTurn || !this.moveIsValid(move, this.validMoves(move.startPos))){
+        if (this.checkMoveBounds(move) || movedPiece == null || movedPiece.color != this.teamTurn || !this.moveIsValid(move, this.validMoves(move.startPos)) || this.isResigned){
             throw new InvalidMoveException();
         }
         this.takenPiece = this.board.getPiece(move.getEndPosition());

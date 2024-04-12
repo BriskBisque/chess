@@ -12,10 +12,5 @@ public class Main {
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
-//        String input = "a1";
-//        int letter = 9-(getNumericValue(input.charAt(0))-9);
-//        System.out.println(letter);
-//        int number = getNumericValue(input.charAt(1));
-//        System.out.print(number);
     }
 }

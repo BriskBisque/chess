@@ -135,11 +135,22 @@ public class Service {
     public void setGameResign(int gameID, String username) throws DataAccessException {
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
-        if ((!Objects.equals(gameData.whiteUsername(), username) && !Objects.equals(gameData.blackUsername(), username)) || checkIsResigned(gameID)) {
-            throw new DataAccessException("You are not a player and can't resign the game.");
+        checkUserColor(username, gameData);
+        if (checkIsResigned(gameID)) {
+            throw new DataAccessException("Game is resigned.");
         }
         game.setResigned(true);
         gameDao.updateGameString(game.toString(), gameID);
+    }
+
+    public ChessGame.TeamColor checkUserColor(String username, GameData gameData) throws DataAccessException {
+        if ((!Objects.equals(gameData.whiteUsername(), username) && !Objects.equals(gameData.blackUsername(), username))) {
+            throw new DataAccessException("You are not a player and can't resign the game.");
+        } else if ((Objects.equals(gameData.whiteUsername(), username))) {
+            return ChessGame.TeamColor.WHITE;
+        } else {
+            return ChessGame.TeamColor.BLACK;
+        }
     }
 
     public GameDAO getGameDao() {

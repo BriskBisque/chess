@@ -30,6 +30,7 @@ public class Board {
     public void drawWhitePlayer(Collection<ChessMove> moves){
         out.print(ERASE_SCREEN);
 
+        System.out.println();
         drawHorizontalLineBackwards(out);
         drawBoardBackwards(out, moves);
         drawHorizontalLineBackwards(out);
@@ -41,6 +42,7 @@ public class Board {
     public void drawBlackPlayer(Collection<ChessMove> moves){
         out.print(ERASE_SCREEN);
 
+        System.out.println();
         drawHorizontalLine(out);
         drawBoard(out, moves);
         drawHorizontalLine(out);
@@ -210,11 +212,6 @@ public class Board {
         out.print(SET_TEXT_BLINKING);
     }
 
-    private static void setYellow(PrintStream out) {
-        out.print(SET_BG_COLOR_YELLOW);
-        out.print(SET_TEXT_COLOR_BLACK);
-    }
-
     private static String getChessPieceCharacter(ChessPiece piece) {
         ChessPiece.PieceType type = piece.getPieceType();
         ChessGame.TeamColor color = piece.getTeamColor();
@@ -257,14 +254,5 @@ public class Board {
         } else {
             return EMPTY;
         }
-    }
-
-    private static void printPlayer(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
-
-        out.print(player);
-
-        setWhite(out);
     }
 }
