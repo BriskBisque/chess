@@ -1,7 +1,6 @@
 package ui;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,10 +48,10 @@ public class ClientCommunicator {
         }
     }
 
-    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, DataAccessException {
+    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new DataAccessException("failure: " + status);
+            throw new IOException("failure: " + status);
         }
     }
 
