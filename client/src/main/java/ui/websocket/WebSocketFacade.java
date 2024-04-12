@@ -19,14 +19,14 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    client.websocket.MessageHandler messageHandler;
+    NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url, client.websocket.MessageHandler messageHandler) throws DataAccessException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
-            this.messageHandler = messageHandler;
+            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -49,26 +49,24 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void loadGame(String serverMessage){
-        LoadGame message = new Gson().fromJson(serverMessage, LoadGame.class);
-        ChessGame game = new Gson().fromJson(message.game, ChessGame.class);
-        messageHandler.loadGame(game);
+        LoadGame loadGame = new Gson().fromJson(serverMessage, LoadGame.class);
+        notificationHandler.loadGame(loadGame);
     }
 
     public void error(String serverMessage){
         ErrorMessage error = new Gson().fromJson(serverMessage, ErrorMessage.class);
-        messageHandler.error(error);
+        notificationHandler.error(error);
     }
 
     public void notification(String serverMessage){
         Notification notification = new Gson().fromJson(serverMessage, Notification.class);
-        messageHandler.notify(notification);
+        notificationHandler.notify(notification);
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws DataAccessException {
         try {
             var command = new JoinPlayer(authToken, gameID, teamColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
-            System.out.println("TESTING FACADE");
         } catch (IOException ex) {
             throw new DataAccessException(ex.getMessage());
         }

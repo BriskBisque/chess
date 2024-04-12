@@ -10,7 +10,8 @@ import model.Results.GameResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
 import server.GameNameResponse;
-import ui.websocket.WebSocketFacade;
+import ui.websocket.NotificationHandler;
+
 import static java.lang.Character.getNumericValue;
 
 import java.util.ArrayList;
@@ -25,13 +26,14 @@ public class Client {
     private final Scanner scanner;
     private String username = null;
     private String authToken = null;
-    private State state = State.SIGNEDOUT;
+    public State state = State.SIGNEDOUT;
     private final Board board = new Board();
     private ChessGame.TeamColor teamColor;
+    private int gameID;
 
-    public Client(String serverUrl, client.websocket.MessageHandler messageHandler) throws DataAccessException {
+    public Client(String serverUrl, NotificationHandler notificationHandler) throws DataAccessException {
         scanner = new Scanner(System.in);
-        facade = new ServerFacade(serverUrl, messageHandler);
+        facade = new ServerFacade(serverUrl, notificationHandler);
     }
 
     public void setUIColor(){
@@ -39,6 +41,7 @@ public class Client {
     }
 
     void printPrompt() {
+        setUIColor();
         System.out.print(">>> " + SET_BG_COLOR_GREEN);
     }
 
@@ -67,8 +70,7 @@ public class Client {
                 3. Redraw Chess Board\s
                 4. Leave\s
                 5. Resign\s
-                6. Help
-                """;
+                6. Help""";
         } else if (this.state == State.OBSERVING){
             return """
                     You are currently observing a game.\s
@@ -245,9 +247,7 @@ public class Client {
         }
         this.state = State.INGAME;
         this.teamColor = playerColor;
-
-        drawGameUI();
-
+        this.gameID = gameID;
         return "Joined game as player.";
     }
 
@@ -268,15 +268,13 @@ public class Client {
 
         try {
             facade.joinGame(this.authToken, new JoinGameData(null, gameID));
-            teamColor = ChessGame.TeamColor.WHITE;
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }
 
         this.state = State.OBSERVING;
         this.teamColor = null;
-
-        drawGameUI();
+        this.gameID = gameID;
         return "Joined game as observer.";
     }
 
@@ -348,12 +346,18 @@ public class Client {
                 }
             }
         }
+        int startRow = 9-getNumericValue(start.charAt(1));
+        int startCol = (getNumericValue(start.charAt(0))-9);
+        int endRow = 9-getNumericValue(end.charAt(1));
+        int endCol = (getNumericValue(end.charAt(0))-9);
 
-        ChessPosition startPos = new ChessPosition(getNumericValue(start.charAt(0))-9, getNumericValue(start.charAt(1)));
-        ChessPosition endPos = new ChessPosition(getNumericValue(end.charAt(0))-9, getNumericValue(end.charAt(0)));
+        ChessPosition startPos = new ChessPosition(startRow, startCol);
+        ChessPosition endPos = new ChessPosition(endRow, endCol);
         ChessMove move = new ChessMove(startPos, endPos, promoType);
+        ChessPiece piece = board.getGame().getBoard().getPiece(startPos);
 
         try {
+            facade.makeMove(authToken, gameID, move);
         } catch (Exception ignored) {
             return "Move failed.";
         }
@@ -379,7 +383,7 @@ public class Client {
             board.drawWhitePlayer(moves);
         }
 
-        return "Moves for location " + locationInput;
+        return "Board redrawn.";
     }
 
     public String drawGameUI(){
@@ -396,6 +400,7 @@ public class Client {
     private String leaveGameUI() throws DataAccessException {
         try {
             this.state = State.SIGNEDIN;
+            facade.leaveGame(authToken, gameID);
         } catch (Exception e){
             throw new DataAccessException(e.getMessage());
         }
@@ -406,6 +411,7 @@ public class Client {
     private String resignGameUI() throws DataAccessException {
         try {
             this.state = State.SIGNEDIN;
+            facade.resignGame(authToken, gameID);
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }

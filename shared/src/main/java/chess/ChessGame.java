@@ -17,11 +17,13 @@ public class ChessGame {
     public ChessBoard clonedBoard;
     public ChessMove lastMove;
     public ChessPiece takenPiece;
+    public boolean isResigned;
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.teamTurn = TeamColor.WHITE;
         this.clonedBoard = new ChessBoard();
+        this.isResigned = false;
     }
 
     /**
@@ -271,5 +273,13 @@ public class ChessGame {
                 "teamTurn=" + teamTurn +
                 ", board=" + board +
                 '}';
+    }
+
+    public boolean isResigned() {
+        return isResigned;
+    }
+
+    public void setResigned(boolean resigned) {
+        isResigned = resigned;
     }
 }

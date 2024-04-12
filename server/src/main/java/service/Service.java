@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.*;
 import model.*;
 import model.Results.GameResult;
@@ -88,12 +89,12 @@ public class Service {
         return gameDao.getGame(gameID);
     }
 
-    public void setGame(GameData gameData) throws DataAccessException {
-        gameDao.updateGameString(gameData);
+    public void setGame(String game, int gameID) throws DataAccessException {
+        gameDao.updateGameString(game, gameID);
     }
 
     public String getUsername(String authToken) throws DataAccessException {
-        return userDao.getUser(authToken).username();
+        return authDao.getUser(authToken);
     }
 
     public void joinGame(JoinGameData gameReqData, String authToken) throws DataAccessException {
@@ -125,12 +126,20 @@ public class Service {
         return gameDao.listGames();
     }
 
-    public AuthDAO getAuthDao() {
-        return authDao;
+    public boolean checkIsResigned(int gameID) throws DataAccessException {
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+        return game.isResigned();
     }
 
-    public UserDAO getUserDao() {
-        return userDao;
+    public void setGameResign(int gameID, String username) throws DataAccessException {
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+        if ((!Objects.equals(gameData.whiteUsername(), username) && !Objects.equals(gameData.blackUsername(), username)) || checkIsResigned(gameID)) {
+            throw new DataAccessException("You are not a player and can't resign the game.");
+        }
+        game.setResigned(true);
+        gameDao.updateGameString(game.toString(), gameID);
     }
 
     public GameDAO getGameDao() {

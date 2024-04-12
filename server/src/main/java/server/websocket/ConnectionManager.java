@@ -21,45 +21,12 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String excludeAuthToken, Notification notification) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        System.out.print("TESTING MANAGER");
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                c.send(notification.toString());
-            } else {
-                removeList.add(c);
-            }
-        }
-
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
-        }
-    }
-
-    public void sendGame(String excludeAuthToken, LoadGame loadGame) throws IOException {
+    public void broadcast(String excludeAuthToken, String message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                c.send(loadGame.toString());
-            } else {
-                removeList.add(c);
-            }
-        }
-
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
-        }
-    }
-
-    public void sendError(String excludeAuthToken, ErrorMessage error) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (c.authToken.equals(excludeAuthToken)) {
-                    c.send(error.toString());
+                if (!c.authToken.equals(excludeAuthToken)) {
+                    c.send(message);
                 }
             } else {
                 removeList.add(c);
@@ -69,6 +36,12 @@ public class ConnectionManager {
         // Clean up any connections that were left open.
         for (var c : removeList) {
             connections.remove(c.authToken);
+        }
+    }
+
+    public void notifyPlayer(Connection connection, String message) throws IOException {
+        if (connection.session.isOpen()) {
+            connection.send(message);
         }
     }
 }

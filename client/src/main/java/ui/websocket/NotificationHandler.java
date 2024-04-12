@@ -1,11 +1,12 @@
-package client.websocket;
+package ui.websocket;
 
 import chess.ChessGame;
 import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 
-public interface MessageHandler {
+public interface NotificationHandler {
     void notify(Notification message);
-    void loadGame(ChessGame game);
+    void loadGame(LoadGame loadGame);
     void error(ErrorMessage error);
 }

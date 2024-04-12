@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
@@ -42,7 +43,11 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
-        GameData game = new GameData(0, null, null, gameName, new ChessGame());
+        ChessGame newGame = new ChessGame();
+        ChessBoard board = newGame.getBoard();
+        board.resetBoard();
+        newGame.setBoard(board);
+        GameData game = new GameData(0, null, null, gameName, newGame);
         var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String gameJson = new Gson().toJson(game.game());
         var id = DatabaseManager.executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
@@ -120,12 +125,11 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGameString(GameData gameData) throws DataAccessException {
-        int gameID = gameData.gameID();
+    public void updateGameString(String game, int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "UPDATE games SET game = ? WHERE gameID = ?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, gameData.toString());
+                ps.setString(1, game);
                 ps.setInt(2, gameID);
                 int rowsAffected = ps.executeUpdate();
             }

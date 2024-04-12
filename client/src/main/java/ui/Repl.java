@@ -1,8 +1,11 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import ui.websocket.NotificationHandler;
 import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 
 import java.util.Objects;
@@ -10,7 +13,7 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl implements client.websocket.MessageHandler {
+public class Repl implements NotificationHandler {
     private final Client client;
 
     public Repl(String serverUrl) throws DataAccessException {
@@ -25,7 +28,9 @@ public class Repl implements client.websocket.MessageHandler {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            client.printPrompt();
+            if ((client.state != State.INGAME) || (result.equals("Board redrawn."))) {
+                client.printPrompt();
+            }
             int line = client.parseInput(scanner);
 
             try {
@@ -45,16 +50,18 @@ public class Repl implements client.websocket.MessageHandler {
     }
 
     public void notify(Notification notification) {
-        System.out.println(SET_TEXT_COLOR_RED + SET_BG_COLOR_BLACK + notification.getMessage());
+        System.out.println(SET_TEXT_COLOR_GREEN + SET_BG_COLOR_BLACK + "\n" + notification.getMessage());
         client.printPrompt();
     }
 
-    public void loadGame(ChessGame game) {
-        client.setBoard(game);
+    public void loadGame(LoadGame loadGame) {
+        client.setBoard(new Gson().fromJson(loadGame.game, ChessGame.class));
         client.drawGameUI();
+        client.printPrompt();
     }
 
     public void error(ErrorMessage error){
-        System.out.println(SET_TEXT_COLOR_RED + SET_BG_COLOR_BLACK + error.getErrorMessage());
+        System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + error.getErrorMessage());
+        client.printPrompt();
     }
 }

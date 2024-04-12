@@ -1,11 +1,13 @@
 package ui;
 
+import chess.ChessMove;
 import dataAccess.DataAccessException;
 import model.*;
 import model.Results.GameIDResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
 import server.GameNameResponse;
+import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
 
 import java.util.Objects;
@@ -18,9 +20,9 @@ public class ServerFacade {
     private final ClientCommunicator communicator;
     private final WebSocketFacade ws;
 
-    public ServerFacade(String url, client.websocket.MessageHandler messageHandler) throws DataAccessException {
+    public ServerFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
         communicator = new ClientCommunicator(url);
-        ws = new WebSocketFacade(url, messageHandler);
+        ws = new WebSocketFacade(url, notificationHandler);
     }
 
     public UserResult registerUser(UserData user) throws DataAccessException {
@@ -64,4 +66,17 @@ public class ServerFacade {
             ws.joinObserver(authToken, joinGameData.gameID());
         }
     }
+
+    public void makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException {
+        ws.makeMove(authToken, gameID, move);
+    }
+
+    public void leaveGame(String authToken, int gameID) throws DataAccessException {
+        ws.leaveGame(authToken, gameID);
+    }
+
+    public void resignGame(String authToken, int gameID) throws DataAccessException {
+        ws.resignGame(authToken, gameID);
+    }
+
 }
