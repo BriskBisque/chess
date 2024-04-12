@@ -8,7 +8,7 @@ import model.*;
 import model.Results.GameResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
-import server.GameNameResponse;
+import model.GameNameResponse;
 import ui.websocket.NotificationHandler;
 
 import static java.lang.Character.getNumericValue;

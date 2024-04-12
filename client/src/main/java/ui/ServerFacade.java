@@ -1,12 +1,10 @@
 package ui;
 
 import chess.ChessMove;
-import dataAccess.DataAccessException;
 import model.*;
 import model.Results.GameIDResult;
 import model.Results.ListGameResult;
 import model.Results.UserResult;
-import server.GameNameResponse;
 import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
 
