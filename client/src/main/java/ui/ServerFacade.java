@@ -10,6 +10,7 @@ import server.GameNameResponse;
 import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -20,42 +21,42 @@ public class ServerFacade {
     private final ClientCommunicator communicator;
     private final WebSocketFacade ws;
 
-    public ServerFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
+    public ServerFacade(String url, NotificationHandler notificationHandler) throws IOException {
         communicator = new ClientCommunicator(url);
         ws = new WebSocketFacade(url, notificationHandler);
     }
 
-    public UserResult registerUser(UserData user) throws DataAccessException {
+    public UserResult registerUser(UserData user) throws IOException {
         var path = "/user";
         return communicator.makeRequest("POST", path, user, null, UserResult.class);
     }
 
-    public UserResult loginUser(LoginData loginData) throws DataAccessException {
+    public UserResult loginUser(LoginData loginData) throws IOException {
         var path = "/session";
         return communicator.makeRequest("POST", path, loginData, null, UserResult.class);
     }
 
-    public void logoutUser(String authToken) throws DataAccessException {
+    public void logoutUser(String authToken) throws IOException {
         var path = "/session";
         communicator.makeRequest("DELETE", path, null, authToken, null);
     }
 
-    public void deleteAll() throws DataAccessException {
+    public void deleteAll() throws IOException {
         var path = "/db";
         communicator.makeRequest("DELETE", path, null, null, null);
     }
 
-    public ListGameResult listGames(String authToken) throws DataAccessException {
+    public ListGameResult listGames(String authToken) throws IOException {
         var path = "/game";
         return communicator.makeRequest("GET", path, null, authToken, ListGameResult.class);
     }
 
-    public int createGame(String authToken, GameNameResponse gameName) throws DataAccessException {
+    public int createGame(String authToken, GameNameResponse gameName) throws IOException {
         var path = "/game";
         return communicator.makeRequest("POST", path, gameName, authToken, GameIDResult.class).gameID();
     }
 
-    public void joinGame(String authToken, JoinGameData joinGameData) throws DataAccessException {
+    public void joinGame(String authToken, JoinGameData joinGameData) throws IOException {
         var path = "/game";
         communicator.makeRequest("PUT", path, joinGameData, authToken, null);
         if (Objects.equals(joinGameData.playerColor(), "WHITE")) {
@@ -67,15 +68,15 @@ public class ServerFacade {
         }
     }
 
-    public void makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException {
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
         ws.makeMove(authToken, gameID, move);
     }
 
-    public void leaveGame(String authToken, int gameID) throws DataAccessException {
+    public void leaveGame(String authToken, int gameID) throws IOException {
         ws.leaveGame(authToken, gameID);
     }
 
-    public void resignGame(String authToken, int gameID) throws DataAccessException {
+    public void resignGame(String authToken, int gameID) throws IOException {
         ws.resignGame(authToken, gameID);
     }
 

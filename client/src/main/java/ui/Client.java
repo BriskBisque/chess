@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import chess.ChessPiece;
-import dataAccess.DataAccessException;
 import model.*;
 import model.Results.GameResult;
 import model.Results.ListGameResult;
@@ -14,6 +13,7 @@ import ui.websocket.NotificationHandler;
 
 import static java.lang.Character.getNumericValue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Scanner;
@@ -31,7 +31,7 @@ public class Client {
     private ChessGame.TeamColor teamColor;
     private int gameID;
 
-    public Client(String serverUrl, NotificationHandler notificationHandler) throws DataAccessException {
+    public Client(String serverUrl, NotificationHandler notificationHandler) throws IOException {
         scanner = new Scanner(System.in);
         facade = new ServerFacade(serverUrl, notificationHandler);
     }
@@ -88,7 +88,7 @@ public class Client {
         }
     }
 
-    public String eval(int userInput) throws DataAccessException {
+    public String eval(int userInput) throws IOException {
         if (this.state == State.SIGNEDOUT){
             switch (userInput) {
                 case 1 -> {return registerUI();}
@@ -144,7 +144,7 @@ public class Client {
         return "quit";
     }
 
-    private String registerUI() throws DataAccessException {
+    private String registerUI() throws IOException {
         setUIColor();
         System.out.println("Please give a username:");
         printPrompt();
@@ -162,7 +162,7 @@ public class Client {
         return login(new LoginData(username, password));
     }
 
-    private String loginUI() throws DataAccessException {
+    private String loginUI() throws IOException {
         setUIColor();
         System.out.println("Please give a username:");
         printPrompt();
@@ -175,13 +175,9 @@ public class Client {
         return login(new LoginData(username, password));
     }
 
-    private String login(LoginData loginData) throws DataAccessException {
+    private String login(LoginData loginData) throws IOException {
         UserResult user = new UserResult("", "");
-        try {
-            user = facade.loginUser(loginData);
-        } catch (Exception e) {
-            throw new DataAccessException("Couldn't log in with the provided information.");
-        }
+        user = facade.loginUser(loginData);
 
         this.authToken = user.authToken();
         this.username = user.username();
@@ -190,7 +186,7 @@ public class Client {
         return "Logged in as: " + user.username();
     }
 
-    private String logoutUI() throws DataAccessException {
+    private String logoutUI() throws IOException {
         facade.logoutUser(this.authToken);
         this.state = State.SIGNEDOUT;
         this.authToken = null;
@@ -198,7 +194,7 @@ public class Client {
         return this.username + " has been logged out.";
     }
 
-    private String createGameUI() throws DataAccessException {
+    private String createGameUI() throws IOException {
         assertSignedIn();
         setUIColor();
         System.out.println("Please give a game name:");
@@ -210,7 +206,7 @@ public class Client {
         return "Game created with id " + id;
     }
 
-    private String joinGameUI() throws DataAccessException {
+    private String joinGameUI() throws IOException {
         assertSignedIn();
 
         setUIColor();
@@ -240,18 +236,14 @@ public class Client {
             }
         }
 
-        try {
-            facade.joinGame(this.authToken, new JoinGameData(colorInput, gameID));
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        facade.joinGame(this.authToken, new JoinGameData(colorInput, gameID));
         this.state = State.INGAME;
         this.teamColor = playerColor;
         this.gameID = gameID;
         return "Joined game as player.";
     }
 
-    private String joinObserverUI() throws DataAccessException {
+    private String joinObserverUI() throws IOException {
         assertSignedIn();
 
         setUIColor();
@@ -266,11 +258,7 @@ public class Client {
             return joinObserverUI();
         }
 
-        try {
-            facade.joinGame(this.authToken, new JoinGameData(null, gameID));
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        facade.joinGame(this.authToken, new JoinGameData(null, gameID));
 
         this.state = State.OBSERVING;
         this.teamColor = null;
@@ -278,7 +266,7 @@ public class Client {
         return "Joined game as observer.";
     }
 
-    private String listGamesUI() throws DataAccessException {
+    private String listGamesUI() throws IOException {
         assertSignedIn();
 
         ListGameResult gameResult = facade.listGames(this.authToken);
@@ -300,9 +288,9 @@ public class Client {
         return result.toString();
     }
 
-    private void assertSignedIn() throws DataAccessException {
+    private void assertSignedIn() throws IOException {
         if (this.state == State.SIGNEDOUT) {
-            throw new DataAccessException(SET_TEXT_COLOR_RED + "You must sign in");
+            throw new IOException(SET_TEXT_COLOR_RED + "You must sign in");
         }
     }
 
@@ -396,24 +384,16 @@ public class Client {
         return "Board redrawn.";
     }
 
-    private String leaveGameUI() throws DataAccessException {
-        try {
-            this.state = State.SIGNEDIN;
-            facade.leaveGame(authToken, gameID);
-        } catch (Exception e){
-            throw new DataAccessException(e.getMessage());
-        }
+    private String leaveGameUI() throws IOException {
+        this.state = State.SIGNEDIN;
+        facade.leaveGame(authToken, gameID);
 
         return "Left Game";
     }
 
-    private String resignGameUI() throws DataAccessException {
-        try {
-            this.state = State.SIGNEDIN;
-            facade.resignGame(authToken, gameID);
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
+    private String resignGameUI() throws IOException {
+        this.state = State.SIGNEDIN;
+        facade.resignGame(authToken, gameID);
 
         return "Resigned Game.";
     }

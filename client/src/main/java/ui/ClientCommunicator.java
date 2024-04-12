@@ -19,7 +19,7 @@ public class ClientCommunicator {
         serverUrl = url;
     }
 
-    <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws DataAccessException {
+    <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws IOException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -30,7 +30,7 @@ public class ClientCommunicator {
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new IOException(ex.getMessage());
     }
     }
 

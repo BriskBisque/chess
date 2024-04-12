@@ -2,12 +2,12 @@ package ui;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 import ui.websocket.NotificationHandler;
 import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -16,7 +16,7 @@ import static ui.EscapeSequences.*;
 public class Repl implements NotificationHandler {
     private final Client client;
 
-    public Repl(String serverUrl) throws DataAccessException {
+    public Repl(String serverUrl) throws IOException {
         client = new Client(serverUrl, this);
     }
 

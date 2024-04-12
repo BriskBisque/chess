@@ -3,7 +3,6 @@ package ui.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
@@ -22,7 +21,7 @@ public class WebSocketFacade extends Endpoint {
     NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws IOException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
@@ -44,7 +43,7 @@ public class WebSocketFacade extends Endpoint {
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new IOException(ex.getMessage());
         }
     }
 
@@ -63,49 +62,29 @@ public class WebSocketFacade extends Endpoint {
         notificationHandler.notify(notification);
     }
 
-    public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws DataAccessException {
-        try {
-            var command = new JoinPlayer(authToken, gameID, teamColor);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+    public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor teamColor) throws IOException {
+        var command = new JoinPlayer(authToken, gameID, teamColor);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
-    public void joinObserver(String authToken, int gameID) throws DataAccessException {
-        try {
-            var command = new JoinObserver(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+    public void joinObserver(String authToken, int gameID) throws IOException {
+        var command = new JoinObserver(authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
-    public void makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException {
-        try {
-            var command = new MakeMove(authToken, gameID, move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+        var command = new MakeMove(authToken, gameID, move);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
-    public void resignGame(String authToken, int gameID) throws DataAccessException {
-        try {
-            var command = new Resign(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+    public void resignGame(String authToken, int gameID) throws IOException {
+        var command = new Resign(authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
-    public void leaveGame(String authToken, int gameID) throws DataAccessException {
-        try {
-            var command = new Leave(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+    public void leaveGame(String authToken, int gameID) throws IOException {
+        var command = new Leave(authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
     @Override
