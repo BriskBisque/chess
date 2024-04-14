@@ -73,8 +73,11 @@ public class Client {
                 6. Help""";
         } else if (this.state == State.OBSERVING){
             return """
-                    You are currently observing a game.\s
-                    Enter 1 to leave.""";
+                Enter a number: \s
+                1. Highlight Legal Moves\s
+                2. Redraw Chess Board\s
+                3. Leave\s
+                4. Help""";
         }
         return "quit";
     }
@@ -136,10 +139,19 @@ public class Client {
                 Anything else, you will get a help menu.""";}
             }
         } else if (this.state == State.OBSERVING) {
-            return switch (userInput) {
-                case 1 -> leaveGameUI();
-                default -> "You are still observing the game.";
-            };
+            switch (userInput) {
+                case 1 -> {return highlightGameUI();}
+                case 2 -> {return drawGameUI();}
+                case 3 -> {return leaveGameUI();}
+                default -> {return """
+                Enter just the number of the option you want to pick.\s
+                1. Enter a start location and an end location to make a move.\s
+                2. Enter a location to see what moves the piece can make.\s
+                3. Redraws the board.\s
+                4. Leaves the game without resigning.\s
+                5. Forfeits the game.\s
+                Anything else, you will get a help menu.""";}
+            }
         }
         return "quit";
     }
@@ -309,7 +321,7 @@ public class Client {
             setUIColor();
             System.out.println("Please enter a promotion type. If no promotion is available, please enter NONE.\n" +
                     " (NONE/ROOK/BISHOP/KNIGHT/QUEEN)");
-            System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+            printPrompt();
             String typeInput = scanner.nextLine();
 
             switch (typeInput.toUpperCase()) {
@@ -334,9 +346,9 @@ public class Client {
                 }
             }
         }
-        int startRow = 9-getNumericValue(start.charAt(1));
+        int startRow = getNumericValue(start.charAt(1));
         int startCol = (getNumericValue(start.charAt(0))-9);
-        int endRow = 9-getNumericValue(end.charAt(1));
+        int endRow = getNumericValue(end.charAt(1));
         int endCol = (getNumericValue(end.charAt(0))-9);
 
         ChessPosition startPos = new ChessPosition(startRow, startCol);
@@ -358,7 +370,7 @@ public class Client {
         printPrompt();
         String locationInput = scanner.nextLine();
 
-        int row = 9-getNumericValue(locationInput.charAt(1));
+        int row = getNumericValue(locationInput.charAt(1));
         int col = (getNumericValue(locationInput.charAt(0))-9);
 
         ChessPosition position = new ChessPosition(row, col);

@@ -21,7 +21,43 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcast(String excludeAuthToken, String message, int gameID) throws IOException {
+    public void broadcast(String message, int gameID) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (gameID == c.gameID) {
+                    c.send(message);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
+        }
+    }
+
+    public void notifyPlayer(String authToken, String message) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.authToken.equals(authToken)) {
+                    c.send(message);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
+        }
+    }
+
+    public void notifyOthers(String excludeAuthToken, String message, int gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
@@ -36,12 +72,6 @@ public class ConnectionManager {
         // Clean up any connections that were left open.
         for (var c : removeList) {
             connections.remove(c.authToken);
-        }
-    }
-
-    public void notifyPlayer(Connection connection, String message) throws IOException {
-        if (connection.session.isOpen()) {
-            connection.send(message);
         }
     }
 }

@@ -68,19 +68,18 @@ public class WebsocketHandler {
 
             sendGame(gameData, session, authToken);
             var notification = new Notification(username + " has joined as the " + playerString + " player.");
-            connections.broadcast(authToken, new Gson().toJson(notification), gameData.gameID());
+            connections.notifyOthers(authToken, new Gson().toJson(notification), gameData.gameID());
         } catch (Exception e) {
-            error(session, authToken, e, command.getGameID());
+            error(authToken, e);
         }
     }
 
     private void sendGame(GameData gameData, Session session, String authToken) throws IOException {
         ChessGame game = gameData.game();
+        connections.add(authToken, session, gameData.gameID());
 
         var loadGame = new LoadGame(new Gson().toJson(game));
-        Connection playerConnection = new Connection(authToken, session, gameData.gameID());
-        connections.notifyPlayer(playerConnection, new Gson().toJson(loadGame));
-        connections.add(authToken, session, gameData.gameID());
+        connections.notifyPlayer(authToken, new Gson().toJson(loadGame));
     }
 
     private void joinGameObserver(Session session, String message) throws IOException {
@@ -93,9 +92,9 @@ public class WebsocketHandler {
 
             sendGame(gameData, session, authToken);
             var notification = new Notification(username + " has joined as an observer.");
-            connections.broadcast(authToken, new Gson().toJson(notification), gameData.gameID());
+            connections.notifyOthers(authToken, new Gson().toJson(notification), gameData.gameID());
         } catch (Exception e) {
-            error(session, authToken, e, command.getGameID());
+            error(authToken, e);
         }
     }
 
@@ -113,23 +112,45 @@ public class WebsocketHandler {
             }
             ChessMove move = command.getMove();
             game.makeMove(move);
+
+            int gameID = gameData.gameID();
             var gameString = new Gson().toJson(game);
-            service.setGame(gameString, command.getGameID());
+            service.setGame(gameString, gameID);
 
             char startCol = (char)(move.startPos.col+96);
             char endCol = (char)(move.endPos.col+96);
 
-            if (playerColor == ChessGame.TeamColor.BLACK){
-
-            }
-
             var loadGame = new LoadGame(gameString);
-            connections.broadcast(authToken, new Gson().toJson(loadGame), gameData.gameID());
+            connections.notifyOthers(authToken, new Gson().toJson(loadGame), gameID);
             sendGame(gameData, session, authToken);
             var notification = new Notification("A move has been made: " + startCol + (9-move.startPos.row) + " to " + endCol + (9-move.endPos.row) + ".");
-            connections.broadcast(authToken, new Gson().toJson(notification), gameData.gameID());
+            connections.notifyOthers(authToken, new Gson().toJson(notification), gameData.gameID());
+
+            boolean checkIfCheckmate = false;
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                var checkMateWhite = new Notification("WHITE is in checkmate!");
+                connections.broadcast(new Gson().toJson(checkMateWhite), gameID);
+                checkIfCheckmate = true;
+            }
+            if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                var checkMateBlack = new Notification("BLACK is in checkmate!");
+                connections.broadcast(new Gson().toJson(checkMateBlack), gameID);
+                checkIfCheckmate = true;
+            }
+            if (!checkIfCheckmate) {
+                if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                    var checkWhite = new Notification("WHITE is in check!");
+                    connections.broadcast(new Gson().toJson(checkWhite), gameID);
+                }
+                if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                    var checkBlack = new Notification("WHITE is in check!");
+                    connections.broadcast(new Gson().toJson(checkBlack), gameID);
+                }
+            }
+
+
         } catch (Exception e) {
-            error(session, authToken, e, command.getGameID());
+            error(authToken, e);
         }
     }
 
@@ -140,9 +161,9 @@ public class WebsocketHandler {
             String username = service.getUsername(authToken);
             connections.remove(authToken);
             var notification = new Notification(username + " has left the game.");
-            connections.broadcast(authToken, new Gson().toJson(notification), command.getGameID());
+            connections.notifyOthers(authToken, new Gson().toJson(notification), command.getGameID());
         } catch (Exception e) {
-            error(session, authToken, e, command.getGameID());
+            error(authToken, e);
         }
     }
 
@@ -152,20 +173,17 @@ public class WebsocketHandler {
         try {
             String username = service.getUsername(authToken);
             service.setGameResign(command.getGameID(), username);
-            connections.remove(authToken);
             var notification = new Notification(username + " has resigned.");
-            Connection connection = new Connection(authToken, session, command.getGameID());
-            connections.notifyPlayer(connection, new Gson().toJson(notification));
-            connections.broadcast(authToken, new Gson().toJson(notification), connection.gameID);
+            connections.broadcast(new Gson().toJson(notification), command.getGameID());
+            connections.remove(authToken);
         } catch (Exception e) {
-            error(session, authToken, e, command.getGameID());
+            error(authToken, e);
         }
     }
 
-    public void error(Session session, String authToken, Exception exception, int gameID) throws IOException {
+    public void error(String authToken, Exception exception) throws IOException {
         var error = new ErrorMessage("Error: " + exception.toString());
-        Connection playerConnection = new Connection(authToken, session, gameID);
-        connections.notifyPlayer(playerConnection, new Gson().toJson(error));
+        connections.notifyPlayer(authToken, new Gson().toJson(error));
     }
 
 }

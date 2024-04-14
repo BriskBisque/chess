@@ -32,7 +32,7 @@ public class Board {
 
         System.out.println();
         drawHorizontalLineBackwards(out);
-        drawBoardBackwards(out, moves);
+        drawBoard(out, moves);
         drawHorizontalLineBackwards(out);
 
         out.print(SET_BG_COLOR_BLACK);
@@ -44,7 +44,7 @@ public class Board {
 
         System.out.println();
         drawHorizontalLine(out);
-        drawBoard(out, moves);
+        drawBoardBackwards(out, moves);
         drawHorizontalLine(out);
 
         out.print(SET_BG_COLOR_BLACK);
@@ -57,7 +57,7 @@ public class Board {
 
     public ChessGame getGame() {return chessGame;}
 
-    private static void drawHorizontalLineBackwards(PrintStream out) {
+    private static void drawHorizontalLine(PrintStream out) {
 
         setBlack(out);
 
@@ -73,24 +73,18 @@ public class Board {
         out.println();
     }
 
-    private static void drawBoardBackwards(PrintStream out, Collection<ChessMove> moves) {
-
-        int row = 1;
-        String number = "" + row;
+    private static void drawBoard(PrintStream out, Collection<ChessMove> moves) {
         for (int boardRow = BOARD_SIZE_IN_SQUARES-1; boardRow >= 0; --boardRow) {
-            drawVerticalLine(out, number);
-            drawRowBackwards(out, boardRow, moves);
-            drawVerticalLine(out, number);
+            drawVerticalLine(out, "" + (boardRow+1));
+            drawRow(out, boardRow, moves);
+            drawVerticalLine(out, "" + (boardRow+1));
             out.println();
-            row++;
-            number = "" + row;
         }
     }
 
     private static void drawRowBackwards(PrintStream out, int boardRow, Collection<ChessMove> moves) {
 
         ChessBoard board = chessGame.getBoard();
-        boolean checkHighlight;
 
         for (int boardCol = BOARD_SIZE_IN_SQUARES-1; boardCol >= 0; --boardCol) {
             drawSpace(out, boardRow, moves, board, boardCol);
@@ -126,7 +120,7 @@ public class Board {
         return false;
     }
 
-    private static void drawHorizontalLine(PrintStream out) {
+    private static void drawHorizontalLineBackwards(PrintStream out) {
         setBlack(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
@@ -137,24 +131,19 @@ public class Board {
         out.println();
     }
 
-    private static void drawBoard(PrintStream out, Collection<ChessMove> moves) {
+    private static void drawBoardBackwards(PrintStream out, Collection<ChessMove> moves) {
 
-        int row = BOARD_SIZE_IN_SQUARES;
-        String number = "" + row;
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawVerticalLine(out, number);
-            drawRow(out, boardRow, moves);
-            drawVerticalLine(out, number);
+            drawVerticalLine(out, "" + (boardRow+1));
+            drawRowBackwards(out, boardRow, moves);
+            drawVerticalLine(out, "" + (boardRow+1));
             out.println();
-            row--;
-            number = "" + row;
         }
     }
 
     private static void drawRow(PrintStream out, int boardRow, Collection<ChessMove> moves) {
 
         ChessBoard board = chessGame.getBoard();
-        boolean checkHighlight;
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawSpace(out, boardRow, moves, board, boardCol);
